@@ -61,9 +61,9 @@ Wait some seconds, and hit `docker-compose ps` and you should see the same resul
 
 ```
 CONTAINER ID   IMAGE              COMMAND                  CREATED         STATUS        PORTS                               NAMES
-d974edfab9df   bigcapital-mysql   "docker-entrypoint.s…"   7 seconds ago   Up 1 second   0.0.0.0:3306->3306/tcp, 33060/tcp   bigcapital-mysql-1
-cefa73fe2881   bigcapital-redis   "docker-entrypoint.s…"   7 seconds ago   Up 1 second   6379/tcp                            bigcapital-redis-1
-1ea059198cb4   bigcapital-mongo   "docker-entrypoint.s…"   7 seconds ago   Up 1 second   0.0.0.0:27017->27017/tcp            bigcapital-mongo-1
+d974edfab9df   finqora-mysql   "docker-entrypoint.s…"   7 seconds ago   Up 1 second   0.0.0.0:3306->3306/tcp, 33060/tcp   finqora-mysql-1
+cefa73fe2881   finqora-redis   "docker-entrypoint.s…"   7 seconds ago   Up 1 second   6379/tcp                            finqora-redis-1
+1ea059198cb4   finqora-mongo   "docker-entrypoint.s…"   7 seconds ago   Up 1 second   0.0.0.0:27017->27017/tcp            finqora-mongo-1
 ```
 
 - There're some CLI commands we should run before running the server like databaase migration, so we need to build the `server` app first.

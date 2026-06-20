@@ -7,7 +7,7 @@ export const TemplateHeader = ({ defaultLabels }) => (
   <div className={'template__header'}>
     <div className={'template__header--title'}>
       <h1>{defaultLabels.name}</h1>
-      <p>info@bigcapital.ly </p>
+      <p>info@finqora.com </p>
     </div>
     <Icon icon="bigcapital" height={30} width={200} />
   </div>

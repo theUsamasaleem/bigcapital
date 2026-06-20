@@ -122,8 +122,8 @@ jobs:
           # Mail (placeholder values for E2E tests)
           MAIL_HOST=localhost
           MAIL_PORT=1025
-          MAIL_FROM_NAME=Bigcapital
-          MAIL_FROM_ADDRESS=test@bigcapital.app
+          MAIL_FROM_NAME=Finqora
+          MAIL_FROM_ADDRESS=test@finqora.com
           EOF
 
       - name: Run database migrations

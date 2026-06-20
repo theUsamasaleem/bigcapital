@@ -1,4 +1,4 @@
-# Claude Code Settings for Bigcapital
+# Claude Code Settings for Finqora
 
 ## Node.js Version
 

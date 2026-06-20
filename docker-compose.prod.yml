@@ -1,4 +1,4 @@
-# This is a production version of the Bigcapital docker-compose.yml file.
+# This is a production version of the Finqora docker-compose.yml file.
 
 version: '3.3'
 
@@ -19,14 +19,14 @@ services:
       - bigcapital_network
 
   webapp:
-    container_name: bigcapital-webapp
+    container_name: finqora-webapp
     image: bigcapitalhq/webapp:latest
     restart: on-failure
     networks:
       - bigcapital_network
 
   server:
-    container_name: bigcapital-server
+    container_name: finqora-server
     image: bigcapitalhq/server:latest
     expose:
       - '3000'
@@ -128,7 +128,7 @@ services:
       - STRIPE_PAYMENT_REDIRECT_URL=${STRIPE_PAYMENT_REDIRECT_URL}
 
   database_migration:
-    container_name: bigcapital-database-migration
+    container_name: finqora-database-migration
     build:
       context: ./
       dockerfile: docker/migration/Dockerfile
@@ -147,7 +147,7 @@ services:
       - bigcapital_network
 
   mysql:
-    container_name: bigcapital-mysql
+    container_name: finqora-mysql
     restart: on-failure
     build:
       context: ./docker/mariadb
@@ -164,7 +164,7 @@ services:
       - bigcapital_network
 
   redis:
-    container_name: bigcapital-redis
+    container_name: finqora-redis
     restart: on-failure
     build:
       context: ./docker/redis

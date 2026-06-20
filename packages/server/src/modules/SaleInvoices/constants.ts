@@ -167,7 +167,7 @@ export const defaultInvoicePdfTemplateAttributes = {
   primaryColor: 'red',
   secondaryColor: 'red',
 
-  companyName: 'Bigcapital Technology, Inc.',
+  companyName: 'Finqora Technology, Inc.',
 
   showCompanyLogo: true,
   companyLogoKey: '',

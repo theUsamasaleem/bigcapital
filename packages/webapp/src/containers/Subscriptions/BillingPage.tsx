@@ -22,7 +22,7 @@ function BillingPageRoot({
     changePreferencesPageTitle('Billing');
   }, [changePreferencesPageTitle]);
 
-  // In case the edition is not Bigcapital Cloud, redirect to the homepage.
+  // In case the edition is not Finqora Cloud, redirect to the homepage.
   if (!dashboardMeta.is_bigcapital_cloud) {
     return <Redirect to={{ pathname: '/' }} />;
   }

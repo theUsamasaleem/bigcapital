@@ -34,9 +34,11 @@
   </p>
 </p>
 
-# What's Bigcapital?
+# What's Finqora?
 
-Bigcapital is a smart and open-source accounting and inventory software, Bigcapital keeps all business finances in right place and automates accounting processes to give the business powerful and intelligent financial statements and reports to help in making decisions.
+Finqora is a smart, open-source accounting and financial intelligence platform. Finqora keeps all business finances in one place and automates accounting processes to give the business powerful and intelligent financial statements and reports to help in making decisions.
+
+> Finqora is built on the open-source [Bigcapital](https://github.com/bigcapitalhq/bigcapital) project (AGPL). The links below currently point to upstream Bigcapital resources.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/abouolia/blog/main/public/screenshot-2.png" width="270">
@@ -46,11 +48,11 @@ Bigcapital is a smart and open-source accounting and inventory software, Bigcapi
 
 # Getting Started
 
-We've got serveral options on dev and prod depending on your need to get started quickly with Bigcapital.
+We've got several options on dev and prod depending on your need to get started quickly with Finqora.
 
 ## Self-hosted 
 
-Bigcapital is available open-source under AGPL license. You can host it on your own servers using Docker.
+Finqora is available open-source under AGPL license. You can host it on your own servers using Docker.
 
 ### Docker
 
@@ -71,7 +73,7 @@ To get started locally, we have a [guide to help you](https://github.com/bigcapi
 
 ## Headless Accounting
 
-You can integrate Bigcapital API with your system to organize your transactions in double-entry system to get the best financial reports.
+You can integrate the Finqora API with your system to organize your transactions in double-entry system to get the best financial reports.
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/bigcapital/workspace/bigcapital-api)
 

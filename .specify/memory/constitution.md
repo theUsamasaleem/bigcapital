@@ -8,7 +8,7 @@ Templates requiring updates: ✅ plan-template.md (constitution check section), 
 Follow-up TODOs: None
 -->
 
-# Bigcapital Constitution
+# Finqora Constitution
 
 ## Core Principles
 
