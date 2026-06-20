@@ -1,36 +1,9 @@
 <p align="center">
   <p align="center">
-    <a href="https://bigcapital.app" target="_blank">
-      <img src="https://raw.githubusercontent.com/abouolia/blog/main/public/bigcapital.svg" alt="Bigcapital" width="280" height="75">
-    </a>
+    <h1 align="center">Finqora</h1>
   </p>
   <p align="center">
     Simple, smart online accounting software for small and medium businesses.
-  </p>
-
-  <p align="center">
-    <a href="https://github.com/bigcapitalhq/bigcapital/commits/develop">
-      <img src="https://img.shields.io/github/commit-activity/m/bigcapitalhq/bigcapital/develop" />
-    </a>
-    <a href="https://hub.docker.com/u/bigcapitalhq">
-      <img src="https://img.shields.io/docker/pulls/bigcapitalhq/webapp" />
-    </a>
-    <a href="https://discord.com/invite/c8nPBJafeb">
-      <img src="https://img.shields.io/discord/1066514716752625725?label=Discord" alt="" />
-    </a>
-    <a href="https://github.com/bigcapitalhq/bigcapital/graphs/contributors">
-      <img src="https://img.shields.io/github/contributors/bigcapitalhq/bigcapital" alt="" />
-    </a>
-    <a href="https://github.com/bigcapitalhq/bigcapital/blob/develop/LICENSE">
-      <img src="https://img.shields.io/github/license/bigcapitalhq/bigcapital" alt="" />
-    </a>
-    <a href="https://twitter.com/bigcapitalhq"> 
-      <img src="https://img.shields.io/twitter/follow/bigcapitalhq?style=social" alt="twitter" />
-    </a>
-  </p>
-
-  <p align="center">
-    <a href="https://my.bigcapital.app">Bigcapital Cloud</a>
   </p>
 </p>
 
@@ -38,76 +11,44 @@
 
 Finqora is a smart, open-source accounting and financial intelligence platform. Finqora keeps all business finances in one place and automates accounting processes to give the business powerful and intelligent financial statements and reports to help in making decisions.
 
-> Finqora is built on the open-source [Bigcapital](https://github.com/bigcapitalhq/bigcapital) project (AGPL). The links below currently point to upstream Bigcapital resources.
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/abouolia/blog/main/public/screenshot-2.png" width="270">
-  <img src="https://raw.githubusercontent.com/abouolia/blog/main/public/screenshot-1.png" width="270">
-  <img src="https://raw.githubusercontent.com/abouolia/blog/main/public/screenshot-3.png" width="270">
-</p>
+> Finqora is built on the open-source [Bigcapital](https://github.com/bigcapitalhq/bigcapital) project and is distributed under the AGPL license. Attribution to the original authors is retained as required by that license.
 
 # Getting Started
 
 We've got several options on dev and prod depending on your need to get started quickly with Finqora.
 
-## Self-hosted 
+## Self-hosted
 
-Finqora is available open-source under AGPL license. You can host it on your own servers using Docker.
+Finqora is available open-source under the AGPL license. You can host it on your own servers using Docker.
 
 ### Docker
 
-To get started with self-hosted with Docker and Docker Compose, take a look at the [Docker guide](https://docs.bigcapital.app/deployment/docker).
+To get started with self-hosted Finqora using Docker and Docker Compose, see the [Deployment guide](DEPLOYMENT.md).
 
 ## Development
 
 ### Local Setup
 
-To get started locally, we have a [guide to help you](https://github.com/bigcapitalhq/bigcapital/blob/develop/CONTRIBUTING.md).
+To get started locally, see the [Contributing guide](CONTRIBUTING.md).
 
 ### Gitpod
 
 - Click the Gitpod button below to open this project in development mode.
 - This will open and configure the workspace in your browser with all the necessary dependencies.
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/new/#https://github.com/bigcapitalhq/bigcapital)
+# Headless Accounting
 
-## Headless Accounting
-
-You can integrate the Finqora API with your system to organize your transactions in double-entry system to get the best financial reports.
-
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/bigcapital/workspace/bigcapital-api)
+You can integrate the Finqora API with your system to organize your transactions in a double-entry system to get the best financial reports.
 
 # Resources
 
-- [Documentation](https://docs.bigcapital.app/) - Learn how to use.
-- [API Reference](https://docs.bigcapital.app/api-reference) - API reference docs
-- [Contribution](https://github.com/bigcapitalhq/bigcapital/blob/develop/CONTRIBUTING.md) - Welcome to any contributions.
-- [Discord](https://discord.com/invite/c8nPBJafeb) - Ask for help.
-- [Bug Tracker](https://github.com/bigcapitalhq/bigcapital/issues) - Notify us new bugs.
-
-# Changelog
-
-Please see [Releases](https://github.com/bigcapitalhq/bigcapital/releases) for more information what has changed recently.
-
-# Contact us
-
-Meet our sales team for any commercial inquiries.
-
-<a target="_blank" href="https://cal.com/ahmed-bouhuolia-ekk3ph/30min"><img src="https://cal.com/book-with-cal-dark.svg" alt="Book us with Cal.com"></a>
-
-# Recognition
-
-<a href="https://news.ycombinator.com/item?id=36118990">
-  <img
-    style="width: 250px; height: 54px;" width="250" height="54"
-    alt="Featured on Hacker News"
-    src="https://hackernews-badge.vercel.app/api?id=36118990"
-  />
-</a>
+- [Deployment](DEPLOYMENT.md) - How to deploy and self-host Finqora.
+- [Contributing](CONTRIBUTING.md) - How to contribute to the project.
+- [Changelog](CHANGELOG.md) - What has changed recently.
 
 # Contributors
 
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+Finqora is built on Bigcapital. Thanks goes to these wonderful people who contributed to the upstream project ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
