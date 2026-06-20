@@ -1,0 +1,11 @@
+# Local-only override to expose MySQL to host tools (DBeaver, etc.).
+# Apply by adding it as a second -f after docker-compose.prod.yml:
+#   docker compose -f docker-compose.prod.yml -f docker-compose.dbeaver.yml up -d mysql
+# Do NOT use this in a real production deployment — it opens the DB port to the host.
+services:
+  mysql:
+    ports:
+      - '3306:3306'
+  redis:
+    ports:
+      - '6379:6379'

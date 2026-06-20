@@ -23,7 +23,7 @@ import {
 } from './Roles.types';
 import { PaymentReceiveAction } from '../PaymentReceived/types/PaymentReceived.types';
 import { PreferencesAction } from '../Settings/Settings.types';
-import { AuditLogAction } from '../EE/AuditLogs/types/AuditLogs.types';
+import { AuditLogAction } from '../ee/AuditLogs/types/AuditLogs.types';
 import { AttachmentAction } from '../Attachments/Attachments.types';
 
 export const AbilitySchema: ISubjectAbilitiesSchema[] = [

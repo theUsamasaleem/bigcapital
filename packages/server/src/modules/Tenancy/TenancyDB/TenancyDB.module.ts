@@ -16,7 +16,14 @@ export const TenancyDatabaseProxyProvider = ClsModule.forFeatureAsync({
   inject: [ConfigService, ClsService],
   useFactory: async (configService: ConfigService, cls: ClsService) => () => {
     const organizationId = cls.get('organizationId');
-    const database = `bigcapital_tenant_${organizationId}`;
+    // Use the SAME prefix source as the create/drop path
+    // (TenantDBManager.getDatabaseName -> config `tenantDatabase.dbNamePrefix`)
+    // so the database we connect/migrate/seed against always matches the one we
+    // created. Hardcoding a prefix here would break tenant builds whenever the
+    // configured prefix differs (e.g. the `finqora_tenant_` rebrand).
+    const dbNamePrefix =
+      configService.get('tenantDatabase.dbNamePrefix') || 'bigcapital_tenant_';
+    const database = `${dbNamePrefix}${organizationId}`;
     const cachedInstance = lruCache.get(database);
 
     if (cachedInstance) {

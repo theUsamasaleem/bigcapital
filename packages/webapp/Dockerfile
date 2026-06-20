@@ -23,7 +23,10 @@ RUN pnpm install
 # Copy source code for webapp and dependencies
 COPY --chown=node:node ./packages/webapp ./packages/webapp
 
-# Build webapp package
+# Build workspace dependencies first (sdk-ts, utils, pdf-templates, email-components),
+# in topological order, then build the webapp itself. build:webapp alone does NOT
+# build sdk-ts/email-components, which the webapp imports.
+RUN pnpm -r --filter "!@bigcapital/webapp" run build
 RUN pnpm run build:webapp
 
 # Stage 2: Nginx

@@ -12,6 +12,16 @@ import { withSettingsActions } from '@/containers/Settings/withSettingsActions';
 import { getSetupOrganizationValidation } from './SetupOrganization.schema';
 import { setCookie, compose, transfromToSnakeCase } from '@/utils';
 
+// Resolve the browser's local IANA timezone (e.g. "Asia/Karachi") so the
+// required timezone field isn't empty on first render.
+const getLocalTimezone = () => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+  } catch {
+    return '';
+  }
+};
+
 // Initial values.
 const defaultValues = {
   name: '',
@@ -19,7 +29,7 @@ const defaultValues = {
   baseCurrency: '',
   language: 'en',
   fiscalYear: '',
-  timezone: '',
+  timezone: getLocalTimezone(),
 };
 
 /**

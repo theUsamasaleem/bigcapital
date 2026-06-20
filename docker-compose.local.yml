@@ -1,0 +1,33 @@
+# Local development override. Apply as a second -f after docker-compose.prod.yml:
+#   docker compose -f docker-compose.prod.yml -f docker-compose.local.yml up -d
+#
+# What it does:
+#  - Runs the rebranded webapp image we built from source (finqora-webapp:local),
+#    so the UI shows Finqora branding/favicon instead of Bigcapital.
+#  - Exposes MySQL/Redis to host tools (DBeaver, RedisInsight).
+#  - Aligns the tenant DB prefix with the prebuilt bigcapitalhq/server image, whose
+#    connect path ignores the env and defaults to 'bigcapital_tenant_'. Setting the
+#    same value here makes create+connect agree so org setup ("Initializing") can
+#    build & seed tenant DBs.
+#    NOTE: tenant DB names are internal and never shown to users. To get
+#    'finqora_tenant_*' names you must build & run your OWN server image.
+#  - Relaxes API rate limits so the setup wizard doesn't hit "Too many requests".
+#
+# Do NOT use this file in a real production deployment.
+services:
+  webapp:
+    image: finqora-webapp:local
+
+  server:
+    environment:
+      - TENANT_DB_NAME_PERFIX=bigcapital_tenant_
+      - THROTTLE_GLOBAL_LIMIT=100000
+      - THROTTLE_AUTH_LIMIT=100000
+
+  mysql:
+    ports:
+      - '3306:3306'
+
+  redis:
+    ports:
+      - '6379:6379'

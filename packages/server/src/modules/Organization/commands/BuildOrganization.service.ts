@@ -114,6 +114,13 @@ export class BuildOrganizationService {
       } as OrganizationBuildQueueJobPayload,
     );
 
+    // Flag the tenant as building synchronously (before this request returns) so
+    // `GET /organization/current` immediately reports `isBuildRunning: true`.
+    // This drives the frontend to the "initializing" step right away and the
+    // `throwIfTenantIsBuilding` guard prevents duplicate build submissions while
+    // the job is still waiting to be picked up by the worker.
+    await this.tenantRepository.markAsBuilding(jobMeta.id).findById(tenant.id);
+
     return {
       delay: jobMeta.delay,
       processedOn: jobMeta.processedOn,

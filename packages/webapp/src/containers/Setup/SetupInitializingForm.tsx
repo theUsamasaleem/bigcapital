@@ -6,7 +6,7 @@ import { x } from '@xstyled/emotion';
 import { css } from '@emotion/css';
 import { useIsDarkMode } from '@/hooks/useDarkMode';
 
-import { useJob, useCurrentOrganization } from '@/hooks/query';
+import { useCurrentOrganization } from '@/hooks/query';
 import { FormattedMessage as T } from '@/components';
 
 import { withOrganizationActions } from '@/containers/Organization/withOrganizationActions';
@@ -15,48 +15,33 @@ import { withOrganization } from '../Organization/withOrganization';
 
 /**
  * Setup initializing step form.
+ *
+ * The organization database is built by a background (BullMQ) job on the server.
+ * The build job id is NOT exposed on the organization payload, so we cannot poll
+ * the job directly. Instead we poll the current organization and detect completion
+ * via its `is_ready` flag. Once the organization is ready, the
+ * `EnsureOrganizationIsNotReady` guard wrapping the setup page redirects to the
+ * dashboard. If the build fails server-side, `is_build_running` flips back to
+ * false (and `is_ready` stays false), so the wizard returns to the organization
+ * step automatically.
  */
 function SetupInitializingFormInner({
-  setOrganizationSetupCompleted,
-  organization,
+  // #withOrganization
+  isOrganizationReady,
+  isOrganizationBuildRunning,
 }) {
-  const { refetch, isSuccess } = useCurrentOrganization({ enabled: false });
-
-  // Job done state.
-  const [isJobDone, setIsJobDone] = React.useState(false);
-
-  const {
-    data: { isRunning, isWaiting, isFailed, isCompleted },
-    isFetching: isJobFetching,
-  } = useJob(organization?.build_job_id, {
-    refetchInterval: 2000,
-    enabled: !!organization?.build_job_id,
+  // Poll the current organization while the build is running so the redux org
+  // state (`is_ready` / `is_build_running`) stays fresh. Stop once ready.
+  useCurrentOrganization({
+    refetchInterval: isOrganizationReady ? false : 2000,
   });
-
-  React.useEffect(() => {
-    if (isCompleted) {
-      refetch();
-      setIsJobDone(true);
-    }
-  }, [refetch, isCompleted, setOrganizationSetupCompleted]);
-
-  React.useEffect(() => {
-    if (isSuccess && isJobDone) {
-      setOrganizationSetupCompleted(true);
-      setIsJobDone(false);
-    }
-  }, [setOrganizationSetupCompleted, isJobDone, isSuccess]);
 
   return (
     <x.div w="95%" mx="auto" pt="16%">
-      {isFailed ? (
-        <SetupInitializingFailed />
-      ) : isRunning || isWaiting || isJobFetching ? (
-        <SetupInitializingRunning />
-      ) : isCompleted ? (
+      {isOrganizationReady ? (
         <SetupInitializingCompleted />
       ) : (
-        <SetupInitializingFailed />
+        <SetupInitializingRunning />
       )}
     </x.div>
   );
@@ -67,38 +52,11 @@ export const SetupInitializingForm = R.compose(
   withCurrentOrganization(({ organizationTenantId }) => ({
     organizationId: organizationTenantId,
   })),
-  withOrganization(({ organization }) => ({ organization })),
+  withOrganization(({ isOrganizationReady, isOrganizationBuildRunning }) => ({
+    isOrganizationReady,
+    isOrganizationBuildRunning,
+  })),
 )(SetupInitializingFormInner);
-
-/**
- * State initializing failed state.
- */
-function SetupInitializingFailed() {
-  const isDarkMode = useIsDarkMode();
-
-  return (
-    <x.div>
-      <x.div textAlign="center" mt={35}>
-        <x.h1
-          fontSize={'22px'}
-          fontWeight={500}
-          color={isDarkMode ? 'rgba(255, 255, 255, 0.75)' : '#454c59'}
-          mt={0}
-          mb={'14px'}
-        >
-          <T id={'setup.initializing.something_went_wrong'} />
-        </x.h1>
-        <x.p
-          w="70%"
-          mx="auto"
-          color={isDarkMode ? 'rgba(255, 255, 255, 0.7)' : '#2e4266'}
-        >
-          <T id={'setup.initializing.please_refresh_the_page'} />
-        </x.p>
-      </x.div>
-    </x.div>
-  );
-}
 
 /**
  * Setup initializing running state.

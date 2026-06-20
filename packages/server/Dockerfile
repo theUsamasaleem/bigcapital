@@ -23,8 +23,14 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY --chown=node:node ./packages/server ./packages/server
 
-# Build NestJS application
-RUN pnpm run build:server --skip-nx-cache
+# Build NestJS application.
+# 1) Build shared workspace deps first (sdk-ts/utils/pdf-templates/email-components)
+#    so server imports resolve.
+# 2) Build the server with the full tsconfig.json — the default tsconfig.build.json
+#    has broken globs and excludes core modules (Organization, TenantDBManager, ...),
+#    which breaks resolution of modules like ee/Workspaces.
+RUN pnpm -r --filter "!@bigcapital/server" run build
+RUN cd packages/server && npx nest build -p tsconfig.json
 
 # Stage 2: Production
 FROM node:18.16.0-alpine AS production
