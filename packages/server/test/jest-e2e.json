@@ -2,7 +2,7 @@
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
   "testEnvironment": "node",
-  "testRegex": "auth.e2e-spec.ts$",
+  "testRegex": "(auth|financial-statements).e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
@@ -10,5 +10,6 @@
     "^@/(.*)$": "<rootDir>/../src/$1"
   },
   "maxWorkers": 1,
-  "maxConcurrency": 1
+  "maxConcurrency": 1,
+  "testTimeout": 180000
 }

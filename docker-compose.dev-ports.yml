@@ -1,0 +1,15 @@
+# Dev-only override: publishes the Dockerized MySQL/Redis/Gotenberg to the host
+# so a locally-run (hot-reload) server can connect to them.
+# Usage:
+#   docker compose -f docker-compose.prod.yml -f docker-compose.dev-ports.yml up -d mysql redis gotenberg
+# Data volumes are unchanged (named volumes stay attached), so existing data is preserved.
+services:
+  mysql:
+    ports:
+      - '3306:3306'
+  redis:
+    ports:
+      - '6379:6379'
+  gotenberg:
+    ports:
+      - '9000:3000'

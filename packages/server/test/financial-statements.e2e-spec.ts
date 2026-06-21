@@ -109,7 +109,7 @@ describe('Financial Statements (e2e)', () => {
   it('/reports/purchases-by-items (GET)', () => {
     return request(app.getHttpServer())
       .get('/reports/purchases-by-items')
-      .query(baseQuery)
+      .query({ ...baseQuery, noneTransactions: false })
       .set('organization-id', orgainzationId)
       .set('Authorization', AuthorizationHeader)
       .expect(200);
@@ -136,7 +136,7 @@ describe('Financial Statements (e2e)', () => {
   it('/reports/sales-tax-liability-summary (GET)', () => {
     return request(app.getHttpServer())
       .get('/reports/sales-tax-liability-summary')
-      .query(baseQuery)
+      .query({ ...baseQuery, basis: 'accrual' })
       .set('organization-id', orgainzationId)
       .set('Authorization', AuthorizationHeader)
       .expect(200);
