@@ -65,6 +65,7 @@ export enum AbilitySubject {
   Warehouse = 'Warehouse',
   Branch = 'Branch',
   Attachment = 'Attachment',
+  Approval = 'Approval',
 }
 
 export interface IRoleCreatedPayload {

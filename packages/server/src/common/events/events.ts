@@ -792,4 +792,16 @@ export const events = {
     onSalesByItemViewed: 'onSalesByItemViewed',
     onPurchasesByItemViewed: 'onPurchasesByItemViewed',
   },
+
+  /**
+   * Approval workflow service.
+   */
+  approval: {
+    onRequesting: 'onApprovalRequesting',
+    onRequested: 'onApprovalRequested',
+    onApproving: 'onApprovalApproving',
+    onApproved: 'onApprovalApproved',
+    onRejecting: 'onApprovalRejecting',
+    onRejected: 'onApprovalRejected',
+  },
 };

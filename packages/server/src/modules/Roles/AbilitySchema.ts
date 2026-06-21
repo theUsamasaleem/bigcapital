@@ -25,6 +25,7 @@ import { PaymentReceiveAction } from '../PaymentReceived/types/PaymentReceived.t
 import { PreferencesAction } from '../Settings/Settings.types';
 import { AuditLogAction } from '../ee/AuditLogs/types/AuditLogs.types';
 import { AttachmentAction } from '../Attachments/Attachments.types';
+import { ApprovalAction } from '../Approvals/types/Approvals.types';
 
 export const AbilitySchema: ISubjectAbilitiesSchema[] = [
   {
@@ -325,6 +326,16 @@ export const AbilitySchema: ISubjectAbilitiesSchema[] = [
     abilities: [
       { key: AttachmentAction.View, label: 'ability.view', default: true },
       { key: AttachmentAction.Delete, label: 'ability.delete', default: true },
+    ],
+  },
+  {
+    subject: AbilitySubject.Approval,
+    subjectLabel: 'ability.approvals',
+    abilities: [
+      { key: ApprovalAction.View, label: 'ability.view' },
+      { key: ApprovalAction.Request, label: 'ability.request' },
+      { key: ApprovalAction.Approve, label: 'ability.approve' },
+      { key: ApprovalAction.Reject, label: 'ability.reject' },
     ],
   },
 ];

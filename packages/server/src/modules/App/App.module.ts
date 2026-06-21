@@ -37,6 +37,7 @@ import { ItemCategoryModule } from '../ItemCategories/ItemCategory.module';
 import { TaxRatesModule } from '../TaxRates/TaxRate.module';
 import { PdfTemplatesModule } from '../PdfTemplate/PdfTemplates.module';
 import { BranchesModule } from '../Branches/Branches.module';
+import { ApprovalsModule } from '../Approvals/Approvals.module';
 import { WarehousesModule } from '../Warehouses/Warehouses.module';
 import { SerializeInterceptor } from '@/common/interceptors/serialize.interceptor';
 import { ToJsonInterceptor } from '@/common/interceptors/to-json.interceptor';
@@ -204,6 +205,7 @@ import { AppThrottleModule } from './AppThrottle.module';
     TaxRatesModule,
     PdfTemplatesModule,
     BranchesModule,
+    ApprovalsModule,
     WarehousesModule,
     WarehousesTransfersModule,
     CustomersModule,

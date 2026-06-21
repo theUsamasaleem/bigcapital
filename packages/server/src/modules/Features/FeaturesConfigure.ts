@@ -26,6 +26,10 @@ export class FeaturesConfigure {
         name: Features.BankSyncing,
         defaultValue: this.configService.get('bankfeed.enabled') ?? false,
       },
+      {
+        name: Features.APPROVALS,
+        defaultValue: false,
+      },
     ];
   }
 }

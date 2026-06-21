@@ -1,0 +1,81 @@
+import { BaseModel } from '@/models/Model';
+import { InjectModelMeta } from '@/modules/Tenancy/TenancyModels/decorators/InjectModelMeta.decorator';
+import { ApprovalRequestMeta } from './ApprovalRequest.meta';
+import {
+  ApprovalStatus,
+} from '../types/Approvals.types';
+
+@InjectModelMeta(ApprovalRequestMeta)
+export class ApprovalRequest extends BaseModel {
+  documentType!: string;
+  documentId!: number;
+  status!: string;
+  amount!: number | null;
+  requestedByUserId!: number | null;
+  approvedByUserId!: number | null;
+  rejectedByUserId!: number | null;
+  notes!: string | null;
+  reason!: string | null;
+  requestedAt!: Date | string | null;
+  approvedAt!: Date | string | null;
+  rejectedAt!: Date | string | null;
+
+  /**
+   * Table name.
+   */
+  static get tableName() {
+    return 'approval_requests';
+  }
+
+  /**
+   * Timestamps columns.
+   */
+  get timestamps() {
+    return ['createdAt', 'updatedAt'];
+  }
+
+  /**
+   * Virtual attributes.
+   */
+  static get virtualAttributes() {
+    return ['isPending', 'isApproved', 'isRejected'];
+  }
+
+  get isPending() {
+    return this.status === ApprovalStatus.Pending;
+  }
+
+  get isApproved() {
+    return this.status === ApprovalStatus.Approved;
+  }
+
+  get isRejected() {
+    return this.status === ApprovalStatus.Rejected;
+  }
+
+  /**
+   * Model modifiers.
+   */
+  static get modifiers() {
+    return {
+      /**
+       * Filters the pending approval requests.
+       */
+      pending(query) {
+        query.where('status', ApprovalStatus.Pending);
+      },
+
+      /**
+       * Filters approval requests of the given document.
+       * @param {Query} query
+       * @param {string} documentType
+       * @param {number} documentId
+       */
+      forDocument(query, documentType: string, documentId: number) {
+        query
+          .where('document_type', documentType)
+          .where('document_id', documentId);
+      },
+    };
+  }
+}
