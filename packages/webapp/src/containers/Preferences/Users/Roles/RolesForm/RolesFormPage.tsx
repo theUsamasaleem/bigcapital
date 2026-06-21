@@ -9,7 +9,7 @@ import { RolesForm } from './RolesForm';
  */
 export function RolesFormPage() {
   const { id } = useParams();
-  const idInteger = parseInt(id, 10);
+  const idInteger = id ? parseInt(id, 10) : undefined;
 
   return (
     <RolesFormProvider roleId={idInteger}>

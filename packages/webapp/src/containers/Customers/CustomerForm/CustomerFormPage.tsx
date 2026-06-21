@@ -15,7 +15,9 @@ import {
  */
 export function CustomerFormPage() {
   const { id } = useParams();
-  const customerId = parseInt(id, 10);
+  // On the "new" route there is no `id` param; avoid producing NaN (which would
+  // trigger a GET /customers/NaN -> 404). Undefined keeps the detail query disabled.
+  const customerId = id ? parseInt(id, 10) : undefined;
 
   return (
     <CustomerFormProvider customerId={customerId}>
