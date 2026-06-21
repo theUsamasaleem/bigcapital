@@ -4,7 +4,10 @@
   width: 225px;
   outline: 0;
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
-  z-index: 15;
+  // Must sit above sticky data-table cells (z-index 100 in DataTable.scss),
+  // which otherwise paint over the flyout on report/list pages. Kept well below
+  // modals/toasts (999+).
+  z-index: 200;
 
   &__scroll-wrapper {
     height: 100%
@@ -126,5 +129,7 @@
 
 .sidebar-overlay-backdrop {
   background-color: var(--color-sidebar-overlay-backdrop);
-  z-index: 14;
+  // Above sticky data-table cells (z-index 100) so the dim covers page content,
+  // and just below the flyout panel (200).
+  z-index: 199;
 }
