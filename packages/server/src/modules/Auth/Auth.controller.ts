@@ -30,6 +30,9 @@ import { AuthMetaResponseDto } from './dtos/AuthMetaResponse.dto';
 import { LocalAuthGuard } from './guards/Local.guard';
 import { AuthSigninService } from './commands/AuthSignin.service';
 import { SystemUser } from '../System/models/SystemUser';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ClsService } from 'nestjs-cls';
+import { events } from '@/common/events/events';
 
 @Controller('/auth')
 @ApiTags('Auth')
@@ -40,6 +43,8 @@ export class AuthController {
   constructor(
     private readonly authApp: AuthenticationApplication,
     private readonly authSignin: AuthSigninService,
+    private readonly eventPublisher: EventEmitter2,
+    private readonly cls: ClsService,
   ) {}
 
   @Post('/signin')
@@ -66,6 +71,18 @@ export class AuthController {
         errors: [{ type: 'ORGANIZATION.INACTIVE' }],
       });
     }
+
+    // Emits `auth.signIn` for the audit trail (login). The request isn't
+    // JWT-authenticated yet, so set the CLS tenant/user so the audit row lands
+    // in the correct tenant DB; the client IP is already set by UserIpInterceptor.
+    this.cls.set('organizationId', tenant.organizationId);
+    this.cls.set('userId', user.id);
+    await this.eventPublisher.emitAsync(events.auth.signIn, {
+      userId: user.id,
+      email: user.email,
+      tenantId: tenant.id,
+      organizationId: tenant.organizationId,
+    });
 
     return {
       accessToken: this.authSignin.signToken(user),

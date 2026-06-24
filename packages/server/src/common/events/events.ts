@@ -5,6 +5,7 @@ export const events = {
   auth: {
     signIn: 'onSignIn',
     signingIn: 'onSigningIn',
+    signOut: 'onSignOut',
 
     signUp: 'onSignUp',
     signingUp: 'onSigningUp',
