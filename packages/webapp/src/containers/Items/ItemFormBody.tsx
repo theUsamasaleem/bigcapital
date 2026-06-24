@@ -113,7 +113,7 @@ function ItemFormBodyInner({ organization: { base_currency } }) {
           >
             <TaxRatesSelect
               name={'sell_tax_rate_id'}
-              items={taxRates?.data}
+              items={Array.isArray(taxRates) ? taxRates : taxRates?.data ?? []}
               allowCreate
             />
           </FFormGroup>
@@ -214,7 +214,7 @@ function ItemFormBodyInner({ organization: { base_currency } }) {
           >
             <TaxRatesSelect
               name={'purchase_tax_rate_id'}
-              items={taxRates?.data}
+              items={Array.isArray(taxRates) ? taxRates : taxRates?.data ?? []}
               allowCreate={true}
               fastField={true}
               shouldUpdateDeps={{ taxRates }}

@@ -136,8 +136,22 @@ const transformResourceData = (type) => (response) => {
     [RESOURCES_TYPES.CREDIT_NOTE]: transformCreditNotes,
     [RESOURCES_TYPES.VENDOR_CREDIT]: transformVendorCredits,
   };
-  return {
-    ...pairs[type](response),
-    _type: type,
-  };
+
+  // Resolve the items array defensively. The per-type transformers read legacy
+  // response keys (e.g. response.data.customers); list endpoints now return the
+  // paginated `{ data, pagination }` shape, so those keys can be undefined.
+  // Fall back to the paginated array (and never throw) so search can't crash.
+  let items;
+  try {
+    items = pairs[type] ? pairs[type](response).items : undefined;
+  } catch (e) {
+    items = undefined;
+  }
+  if (!Array.isArray(items)) {
+    const body = (response && response.data) || response || {};
+    if (Array.isArray(body.data)) items = body.data;
+    else if (Array.isArray(body)) items = body;
+    else items = [];
+  }
+  return { items, _type: type };
 };

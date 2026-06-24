@@ -102,10 +102,10 @@ function ItemFormProvider({ itemId, ...props }: ItemFormProviderProps) {
   // Provider state.
   const provider: ItemFormContextValue = {
     itemId,
-    accounts,
+    accounts: accounts ?? [],
     item,
     itemsCategories: itemsCategoriesData?.itemsCategories ?? [],
-    taxRates,
+    taxRates: taxRates ?? [],
     submitPayload,
     isNewMode,
 

@@ -37,12 +37,21 @@ const commonInvalidateQueries = (
   queryClient.invalidateQueries({ queryKey: accountsKeys.all() });
 };
 
+// Normalizes the accounts response to always be a flat array. The endpoint
+// returns the body `{ accounts: [...], filter_meta }`, but every consumer treats
+// the result as an array (e.g. `accounts ?? []`). Passing the raw object to an
+// FSelect makes Blueprint call `.filter` on an object and crash on open. Be
+// defensive about the legacy/paginated shapes too.
+const normalizeAccounts = (res: any) =>
+  Array.isArray(res) ? res : res?.accounts ?? res?.data ?? [];
+
 export function useAccounts(
   query?: GetAccountsQuery | null,
   props?: Omit<UseQueryOptions<AccountsList>, 'queryKey' | 'queryFn'>,
 ) {
   const fetcher = useApiFetcher();
   return useQuery({
+    select: normalizeAccounts,
     ...props,
     queryKey: accountsKeys.list(query),
     queryFn: () => fetchAccounts(fetcher, query ?? {}),
