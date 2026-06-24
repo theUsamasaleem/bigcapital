@@ -1,4 +1,4 @@
-# NewSolution — Feature Design & Implementation Blueprint
+# Finqora — Feature Design & Implementation Blueprint
 
 > On-premise accounting & business-management system for a single local company
 > (3–4 internal users). Built on the existing NestJS + Objection/Knex (MySQL) +
