@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react';
-import { Icon } from '@/components/Icon';
+import { FinqoraLogo } from '@/components/Icons/FinqoraLogo';
 
 export function AuthCopyright() {
-  return <Icon width={122} height={22} icon={'bigcapital'} />;
+  return <FinqoraLogo width={122} height={22} />;
 }

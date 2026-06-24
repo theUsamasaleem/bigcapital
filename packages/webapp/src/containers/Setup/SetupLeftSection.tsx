@@ -3,6 +3,7 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { Text } from '@blueprintjs/core';
 import { Icon, For, FormattedMessage as T, Stack } from '@/components';
+import { FinqoraLogo } from '@/components/Icons/FinqoraLogo';
 import { getFooterLinks } from '@/constants/footerLinks';
 import { useAuthActions } from '@/hooks/state';
 import style from './SetupLeftSection.module.scss';
@@ -93,9 +94,9 @@ export function SetupLeftSection() {
     <section className={'setup-page__left-section'}>
       <div className={'content'}>
         <div className={'content__logo'}>
-          <Icon
-            icon="bigcapital"
+          <FinqoraLogo
             className={'bigcapital--alt'}
+            color={'#fff'}
             height={37}
             width={190}
           />

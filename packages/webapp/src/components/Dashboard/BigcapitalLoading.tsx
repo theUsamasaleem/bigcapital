@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react';
 import classNames from 'classnames';
-import { Icon } from '@/components';
+import { FinqoraLogo } from '@/components/Icons/FinqoraLogo';
 
 import '@/style/components/BigcapitalLoading.scss';
 import { useIsDarkMode } from '@/hooks/useDarkMode';
@@ -16,15 +16,14 @@ export default function BigcapitalLoading({ className }) {
     <div className={classNames('bigcapital-loading', className)}>
       <div class="center">
         {isDarkmode ? (
-          <Icon
-            icon="bigcapital-alt"
+          <FinqoraLogo
             height={37}
             width={228}
             color="#fff"
             className="bigcapital-logo"
           />
         ) : (
-          <Icon icon="bigcapital" height={37} width={228} />
+          <FinqoraLogo height={37} width={228} />
         )}
       </div>
     </div>

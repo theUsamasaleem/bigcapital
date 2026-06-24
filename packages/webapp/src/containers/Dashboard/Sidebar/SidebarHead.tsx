@@ -10,6 +10,7 @@ import {
 import styled, { x } from '@xstyled/emotion';
 
 import { Icon, FormattedMessage as T } from '@/components';
+import { FinqoraLogo } from '@/components/Icons/FinqoraLogo';
 
 import { withCurrentOrganization } from '@/containers/Organization/withCurrentOrganization';
 import { useAuthenticatedAccount } from '@/hooks/query';
@@ -252,12 +253,7 @@ function SidebarHeadJSX({
       </div>
 
       <div className="sidebar__head-logo">
-        <Icon
-          icon={'mini-bigcapital'}
-          width={28}
-          height={28}
-          className="bigcapital--alt"
-        />
+        <FinqoraLogo markOnly height={28} className="bigcapital--alt" />
       </div>
     </div>
   );

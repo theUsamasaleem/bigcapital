@@ -6,6 +6,7 @@ import {
   useOneClickDemoSignin,
 } from '@/hooks/query/oneclick-demo';
 import { Box, Icon, Stack } from '@/components';
+import { FinqoraLogo } from '@/components/Icons/FinqoraLogo';
 import { useJob } from '@/hooks/query';
 import style from './OneClickDemoPage.module.scss';
 
@@ -59,7 +60,7 @@ export function OneClickDemoPageContent() {
     <Box className={style.root}>
       <Box className={style.inner}>
         <Stack align={'center'} spacing={40}>
-          <Icon icon="bigcapital" height={37} width={228} />
+          <FinqoraLogo height={37} width={228} />
 
           {isLoading && (
             <Stack align={'center'} spacing={15}>

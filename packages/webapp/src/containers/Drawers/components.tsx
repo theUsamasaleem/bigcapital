@@ -2,6 +2,7 @@
 import React from 'react';
 import moment from 'moment';
 import { Icon, If, Money } from '@/components';
+import { FinqoraLogo } from '@/components/Icons/FinqoraLogo';
 
 export const TemplateHeader = ({ defaultLabels }) => (
   <div className={'template__header'}>
@@ -9,7 +10,7 @@ export const TemplateHeader = ({ defaultLabels }) => (
       <h1>{defaultLabels.name}</h1>
       <p>info@finqora.com </p>
     </div>
-    <Icon icon="bigcapital" height={30} width={200} />
+    <FinqoraLogo height={30} width={200} />
   </div>
 );
 
