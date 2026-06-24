@@ -21,6 +21,10 @@ static_resources:
                             prefix: '/api'
                           route:
                             cluster: dynamic_server
+                            # PDF/export operations go through gotenberg and can
+                            # take >15s (the default route timeout) on a busy
+                            # machine, which made "Print" hang with no download.
+                            timeout: 120s
                         - match:
                             prefix: '/'
                           route:
