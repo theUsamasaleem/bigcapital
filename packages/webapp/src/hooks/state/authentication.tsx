@@ -11,7 +11,28 @@ import {
   setLocale,
 } from '@/store/authentication/authentication.actions';
 import { useQueryClient } from '@tanstack/react-query';
-import { removeCookie } from '@/utils';
+import { removeCookie, getCookie } from '@/utils';
+
+/**
+ * Best-effort call to record the logout in the audit trail before the session
+ * is cleared. Fire-and-forget; never blocks or fails the logout.
+ */
+function recordSignout() {
+  try {
+    const token = getCookie('token', null);
+    if (!token) return;
+    fetch('/api/auth/signout', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'organization-id': getCookie('organization_id', '') || '',
+      },
+      keepalive: true,
+    }).catch(() => {});
+  } catch (e) {
+    /* ignore — logout must always proceed */
+  }
+}
 
 /**
  * Removes the authentication cookies.
@@ -31,8 +52,8 @@ export const useAuthActions = () => {
   return {
     setLogin: useCallback((login) => dispatch(setLogin(login)), [dispatch]),
     setLogout: useCallback(() => {
-      // Resets store state.
-      // dispatch(setStoreReset());
+      // Record the logout for the audit trail while the token is still present.
+      recordSignout();
 
       // Remove all cached queries.
       queryClient.removeQueries();
