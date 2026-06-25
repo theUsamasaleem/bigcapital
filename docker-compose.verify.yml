@@ -1,0 +1,145 @@
+# Isolated VERIFICATION stack for the Phase 1-3 features.
+#
+# Fully separate from the live demo: distinct container names (finqora-verify-*),
+# its own network, its own mysql/redis volumes and a different host port (8095).
+# The demo containers, images (:latest) and data volumes are never touched.
+#
+# Bring up:   docker compose -f docker-compose.verify.yml --env-file .env up -d
+# Access:     http://localhost:8095
+# Tear down:  docker compose -f docker-compose.verify.yml down         (keeps data)
+#             docker compose -f docker-compose.verify.yml down -v      (also data)
+
+version: '3.3'
+
+services:
+  proxy:
+    container_name: finqora-verify-proxy
+    image: envoyproxy/envoy:v1.30-latest
+    depends_on:
+      - server
+      - webapp
+    ports:
+      - '8095:80'
+    tty: true
+    volumes:
+      - ./docker/envoy/envoy.yaml:/etc/envoy/envoy.yaml
+    restart: on-failure
+    networks:
+      - finqora_verify_network
+
+  webapp:
+    container_name: finqora-verify-webapp
+    # Reuse the existing webapp image (no frontend changes in Phase 3).
+    image: bigcapitalhq/webapp:latest
+    restart: on-failure
+    networks:
+      - finqora_verify_network
+
+  server:
+    container_name: finqora-verify-server
+    image: bigcapitalhq/server:phase3
+    expose:
+      - '3000'
+    depends_on:
+      - mysql
+      - redis
+    restart: on-failure
+    networks:
+      - finqora_verify_network
+    environment:
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_SECURE=${MAIL_SECURE}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
+      - DB_HOST=mysql
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_CHARSET=${DB_CHARSET}
+      - SYSTEM_DB_NAME=${SYSTEM_DB_NAME}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QUEUE_HOST=redis
+      - QUEUE_PORT=6379
+      - TENANT_DB_NAME_PERFIX=${TENANT_DB_NAME_PERFIX}
+      - JWT_SECRET=${JWT_SECRET}
+      - APP_JWT_SECRET=${APP_JWT_SECRET}
+      - BASE_URL=${BASE_URL}
+      - SIGNUP_DISABLED=${SIGNUP_DISABLED}
+      - SIGNUP_ALLOWED_DOMAINS=${SIGNUP_ALLOWED_DOMAINS}
+      - SIGNUP_ALLOWED_EMAILS=${SIGNUP_ALLOWED_EMAILS}
+      - SIGNUP_EMAIL_CONFIRMATION=${SIGNUP_EMAIL_CONFIRMATION}
+      - GOTENBERG_URL=${GOTENBERG_URL}
+      - GOTENBERG_DOCS_URL=${GOTENBERG_DOCS_URL}
+      - EXCHANGE_RATE_SERVICE=${EXCHANGE_RATE_SERVICE}
+      - BANK_FEED_ENABLED=${BANK_FEED_ENABLED}
+      - HOSTED_ON_BIGCAPITAL_CLOUD=${HOSTED_ON_BIGCAPITAL_CLOUD}
+
+  database_migration:
+    container_name: finqora-verify-migration
+    build:
+      context: ./
+      dockerfile: docker/verify/Dockerfile.migration
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_CHARSET=${DB_CHARSET}
+      - SYSTEM_DB_NAME=${SYSTEM_DB_NAME}
+      - TENANT_DB_NAME_PERFIX=${TENANT_DB_NAME_PERFIX}
+    depends_on:
+      - mysql
+    networks:
+      - finqora_verify_network
+
+  mysql:
+    container_name: finqora-verify-mysql
+    restart: on-failure
+    build:
+      context: ./docker/mariadb
+    environment:
+      - MYSQL_DATABASE=${SYSTEM_DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+    expose:
+      - '3306'
+    volumes:
+      - mysql:/var/lib/mysql
+    networks:
+      - finqora_verify_network
+
+  redis:
+    container_name: finqora-verify-redis
+    restart: on-failure
+    build:
+      context: ./docker/redis
+    expose:
+      - '6379'
+    volumes:
+      - redis:/data
+    networks:
+      - finqora_verify_network
+
+  gotenberg:
+    container_name: finqora-verify-gotenberg
+    image: gotenberg/gotenberg:7
+    expose:
+      - '9000'
+    networks:
+      - finqora_verify_network
+
+volumes:
+  mysql:
+    name: finqora_verify_mysql
+    driver: local
+  redis:
+    name: finqora_verify_redis
+    driver: local
+
+networks:
+  finqora_verify_network:
+    name: finqora_verify_network
+    driver: bridge
