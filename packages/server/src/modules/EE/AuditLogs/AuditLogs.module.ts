@@ -4,6 +4,7 @@ import { AuditLogService } from './AuditLog.service';
 import { GetAuditLogsService } from './queries/GetAuditLogs.service';
 import { GetAuditLogFilterOptionsService } from './queries/GetAuditLogFilterOptions.service';
 import { FinancialAuditLogSubscriber } from './subscribers/FinancialAuditLog.subscriber';
+import { AuthApprovalAuditSubscriber } from './subscribers/AuthApprovalAudit.subscriber';
 import { AuthorizationGuard } from '@/modules/Roles/Authorization.guard';
 import { PermissionGuard } from '@/modules/Roles/Permission.guard';
 import { RegisterTenancyModel } from '@/modules/Tenancy/TenancyModels/Tenancy.module';
@@ -18,6 +19,7 @@ const models = [RegisterTenancyModel(AuditLog)];
     GetAuditLogsService,
     GetAuditLogFilterOptionsService,
     FinancialAuditLogSubscriber,
+    AuthApprovalAuditSubscriber,
     AuthorizationGuard,
     PermissionGuard,
   ],

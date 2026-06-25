@@ -11,6 +11,9 @@ export class AuditLog extends TenantBaseModel {
   public action!: string;
   public subject!: string;
   public subjectId!: number | null;
+  public module!: string | null;
+  public oldValues!: Record<string, unknown> | null;
+  public newValues!: Record<string, unknown> | null;
   public metadata!: Record<string, unknown> | null;
   public ip!: string | null;
   public createdAt!: Date | string;
@@ -20,7 +23,7 @@ export class AuditLog extends TenantBaseModel {
   }
 
   static get jsonAttributes() {
-    return ['metadata'];
+    return ['metadata', 'oldValues', 'newValues'];
   }
 
   /**
@@ -53,6 +56,9 @@ export class AuditLog extends TenantBaseModel {
         action: { type: 'string', maxLength: 64 },
         subject: { type: 'string', maxLength: 64 },
         subjectId: { type: ['integer', 'null'] },
+        module: { type: ['string', 'null'], maxLength: 64 },
+        oldValues: { type: ['object', 'null'] },
+        newValues: { type: ['object', 'null'] },
         metadata: { type: ['object', 'null'] },
         ip: { type: ['string', 'null'], maxLength: 64 },
         // Stored as MySQL `YYYY-MM-DD HH:mm:ss` (see AuditLogService), not strict ISO-8601.

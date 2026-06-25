@@ -15,7 +15,17 @@ export interface RecordAuditLogParams {
   action: string;
   subject: string;
   subjectId?: number | null;
+  /** Higher-level grouping (e.g. 'Authentication', 'Approvals', 'Sales'). */
+  module?: string | null;
+  /** Entity snapshot before the change (update/delete/approval transitions). */
+  oldValues?: Record<string, unknown> | null;
+  /** Entity snapshot after the change (create/update/approval transitions). */
+  newValues?: Record<string, unknown> | null;
   metadata?: Record<string, unknown> | null;
+  /** Override the CLS user id (e.g. login, where the request isn't authenticated yet). */
+  userId?: number | null;
+  /** Override the CLS client ip. */
+  ip?: string | null;
 }
 
 @Injectable()
@@ -34,8 +44,14 @@ export class AuditLogService {
    * runs on a separate connection/transaction (only use after the business change committed).
    */
   async record(params: RecordAuditLogParams): Promise<void> {
-    const userId = this.cls.get<number>('userId') ?? null;
-    const ip = (this.cls.get<string>('ip') as string) ?? null;
+    const userId =
+      params.userId !== undefined
+        ? params.userId
+        : this.cls.get<number>('userId') ?? null;
+    const ip =
+      params.ip !== undefined
+        ? params.ip
+        : (this.cls.get<string>('ip') as string) ?? null;
     const executor = params.trx ?? this.tenantKnex();
     const metadata = this.normalizeMetadata(params.metadata);
 
@@ -46,6 +62,9 @@ export class AuditLogService {
         action: params.action,
         subject: params.subject,
         subjectId: params.subjectId ?? null,
+        module: params.module ?? null,
+        oldValues: this.normalizeMetadata(params.oldValues),
+        newValues: this.normalizeMetadata(params.newValues),
         metadata,
         ip,
         // MySQL DATETIME expects `YYYY-MM-DD HH:mm:ss`, not ISO-8601 with `T`/`Z`.
