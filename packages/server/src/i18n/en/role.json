@@ -1,5 +1,5 @@
 {
-  "admin.name": "Admin",
+  "admin.name": "Administrator",
   "admin.desc": "Unrestricted access to all modules.",
   "staff.name": "Staff",
   "staff.desc": "Access to all modules except reports, settings and accountant."

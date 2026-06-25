@@ -78,6 +78,15 @@ Add columns: `old_values` JSON, `new_values` JSON, `module` varchar, `entity_id`
 - **PO note:** the base product has **no Purchase Orders module** (BigCapital ships none), so PO attachments are deferred until a POs module is added in Phase 5/Enhanced Purchase.
 - reuse `documents`/`document_links` for polymorphic linking (`model_ref`,`model_id`).
 
+### 2b) RBAC predefined roles — DONE (Phase 2.3)
+- Roles already model `predefined`/`slug`/permissions; `admin` slug resolves to full `manage all` access (TenantAbilities). Renamed its display to **Administrator** (`role.admin.name`).
+- Added 3 predefined roles via a dependency-free single source of truth `modules/Roles/PredefinedRoles.ts`:
+  - **Accountant** — full CRUD on sales/purchases/banking/journals/items/accounts, all reports, attachments view+delete, can *request* approvals.
+  - **Finance Manager** — Accountant + approve/reject approvals + audit-log view + preferences.
+  - **Viewer** — read-only across records + all reports.
+- Seeded two ways: build-time seeder `seeds/core/20260624121909_seed_predefined_roles.ts` (fresh orgs, runs after the hardcoded-id admin/staff seed) and migration `20260624000000_seed_predefined_roles.ts` (backfills already-seeded tenants only — guarded on `admin` existing to avoid the fresh-build id-collision). Both idempotent by slug.
+- Permissions stored with `value: true` (the ability resolver filters on it) and exact action casing; a unit test validates every (subject, ability) pair against `AbilitySchema` and the Viewer⊆Accountant⊆Finance Manager hierarchy.
+
 ### 3) Approval Workflow (extends shipped module)
 - `approval_rules` (`document_type`, `min_amount`, `max_amount`, `active`, `order`)
 - `approval_rule_levels` (`rule_id` FK, `level` int, `approver_role_id` | `approver_user_id`)
