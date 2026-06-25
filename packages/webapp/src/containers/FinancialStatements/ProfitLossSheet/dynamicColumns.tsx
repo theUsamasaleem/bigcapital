@@ -286,17 +286,20 @@ const assocColumnsToTotalColumn = R.curry((data, column, columnAccessor) => {
 const totalColumn = R.curry((data, column) => {
   const hasChildren = isNodeHasChildren(column);
   const accessor = getTableCellValueAccessor(column.cellIndex);
-  const width = getReportColWidth(data, accessor, column.label);
 
   return {
     key: column.key,
     Header: column.label,
-    accessor,
     textOverview: true,
-    width,
     disableSortBy: true,
     align: hasChildren ? Align.Center : Align.Right,
     money: true,
+    // A group column (e.g. previous-year comparison) must NOT carry a leaf
+    // accessor — otherwise react-table renders a malformed cell and the page
+    // crashes. Only leaf columns get an accessor + width.
+    ...(hasChildren
+      ? {}
+      : { accessor, width: getReportColWidth(data, accessor, column.label) }),
   };
 });
 

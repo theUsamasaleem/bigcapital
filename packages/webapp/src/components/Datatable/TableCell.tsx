@@ -60,7 +60,7 @@ export default function TableCell({ cell, row, index }) {
     }
     saveInvoke(onCellClick, cell, event);
   };
-  const cellType = camelCase(cell.column.Cell.cellType) || 'text';
+  const cellType = camelCase(cell.column.Cell?.cellType) || 'text';
 
   return (
     <div

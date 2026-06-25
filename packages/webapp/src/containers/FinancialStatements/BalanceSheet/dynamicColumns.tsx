@@ -90,21 +90,25 @@ const dateRangeSoloColumnAttrs = (
 const totalMapper = R.curry(
   (data: unknown[], column: ReportTableColumn): TableColumn => {
     const hasChildren = !isEmpty(column.children);
-    const accessor = getTableCellValueAccessor(column.cellIndex);
-    const width = getReportColWidth(data, accessor, column.label);
 
     const columnAccessor: TableColumn = {
       key: column.key,
       Header: column.label,
-      accessor,
       textOverview: true,
-      width,
       disableSortBy: true,
       money: true,
       align: hasChildren ? Align.Center : Align.Right,
     };
     return R.compose(
+      // Group column (e.g. previous-year comparison): attach only sub-columns.
+      // A group column must NOT also carry a leaf accessor, otherwise react-table
+      // renders a malformed cell (cell.column.Cell is undefined) and the page crashes.
       R.when(R.always(hasChildren), assocColumnsToTotalColumn(data, column)),
+      // Leaf column: attach its own accessor + width.
+      R.when(
+        R.always(!hasChildren),
+        R.mergeLeft(dateRangeSoloColumnAttrs(data, column)),
+      ),
     )(columnAccessor);
   },
 );
