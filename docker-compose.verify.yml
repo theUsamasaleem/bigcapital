@@ -29,8 +29,8 @@ services:
 
   webapp:
     container_name: finqora-verify-webapp
-    # Reuse the existing webapp image (no frontend changes in Phase 3).
-    image: bigcapitalhq/webapp:latest
+    # Rebuilt webapp image carrying the new Finqora brand logo (logo.png).
+    image: bigcapitalhq/webapp:finqora-logo
     restart: on-failure
     networks:
       - finqora_verify_network
@@ -41,11 +41,12 @@ services:
     expose:
       - '3000'
     depends_on:
-      - mysql
       - redis
     restart: on-failure
     networks:
       - finqora_verify_network
+      # Also join the demo network so finqora-mysql (the shared DB) is reachable.
+      - demo_network
     environment:
       - MAIL_HOST=${MAIL_HOST}
       - MAIL_USERNAME=${MAIL_USERNAME}
@@ -54,7 +55,9 @@ services:
       - MAIL_SECURE=${MAIL_SECURE}
       - MAIL_FROM_NAME=${MAIL_FROM_NAME}
       - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
-      - DB_HOST=mysql
+      # Shared DB: point at the demo's MySQL (finqora-mysql) so one database
+      # backs both the demo (:80) and this verify app (:8095).
+      - DB_HOST=finqora-mysql
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_CHARSET=${DB_CHARSET}
@@ -143,3 +146,9 @@ networks:
   finqora_verify_network:
     name: finqora_verify_network
     driver: bridge
+  # The demo stack's network (created by docker-compose.prod.yml under the
+  # 'finqora' project). Referenced as external so the verify server can reach
+  # the shared demo MySQL (finqora-mysql).
+  demo_network:
+    name: finqora_bigcapital_network
+    external: true
