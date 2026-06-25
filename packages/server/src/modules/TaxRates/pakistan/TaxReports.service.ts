@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { raw } from 'objection';
 import { TenantModelProxy } from '@/modules/System/models/TenantBaseModel';
 import { ItemEntry } from '@/modules/TransactionItemEntry/models/ItemEntry';
 import { WithholdingTaxEntry } from '../models/WithholdingTaxEntry.model';
@@ -53,6 +52,11 @@ export class TaxReportsService {
     rows: ITaxLiabilityRow[];
     totals: { outputTax: number; inputTax: number; netTax: number };
   }> {
+    // The app maps identifiers with knexSnakeCaseMappers({ upperCase: true }),
+    // so we let the objection builder wrap table/column names (and use ??
+    // bindings inside the SUM so it is wrapped the same way). The aggregate
+    // alias is mapped back to camelCase (tax_amount -> taxAmount) on read.
+    const knex = this.itemEntryModel().knex();
     const rows = (await this.itemEntryModel()
       .query()
       .join('tax_rates', 'items_entries.tax_rate_id', 'tax_rates.id')
@@ -62,9 +66,12 @@ export class TaxReportsService {
       .select('tax_rates.tax_type as taxType')
       .select('items_entries.reference_type as referenceType')
       .select(
-        raw(
-          'SUM(items_entries.quantity * items_entries.rate * items_entries.tax_rate / 100) as taxAmount',
-        ),
+        knex.raw('SUM(?? * ?? * ?? / 100) as ??', [
+          'items_entries.quantity',
+          'items_entries.rate',
+          'items_entries.tax_rate',
+          'taxAmount',
+        ]),
       )
       .groupBy(
         'tax_rates.id',

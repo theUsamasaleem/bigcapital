@@ -1,0 +1,151 @@
+# Portable "NEW APP" stack — Finqora brand logo + Phase 1-3 features.
+#
+# Builds the new webapp + server from the cloned repo source (no private image
+# registry required), and SHARES ONE MySQL with the old app
+# (docker-compose.prod.yml). The old stack must be running first, started under
+# the compose project name 'finqora' so its network is 'finqora_bigcapital_network'
+# and its database container is 'finqora-mysql'.
+#
+# Bring up (AFTER the old stack is up and its migration has finished):
+#   docker compose -p finqora-new -f docker-compose.newapp.yml --env-file .env up -d --build
+# Access:    http://localhost:8095   (old app stays on http://localhost:80)
+# Tear down: docker compose -p finqora-new -f docker-compose.newapp.yml down
+
+services:
+  proxy:
+    container_name: finqora-new-proxy
+    image: envoyproxy/envoy:v1.30-latest
+    depends_on:
+      - server
+      - webapp
+    ports:
+      - '8095:80'
+    tty: true
+    volumes:
+      - ./docker/envoy/envoy.yaml:/etc/envoy/envoy.yaml
+    restart: on-failure
+    networks:
+      - new_network
+
+  webapp:
+    container_name: finqora-new-webapp
+    # Built from source so it carries the new brand logo (logo.png).
+    build:
+      context: ./
+      dockerfile: packages/webapp/Dockerfile
+    image: finqora-new-webapp:local
+    restart: on-failure
+    networks:
+      - new_network
+
+  server:
+    container_name: finqora-new-server
+    # Built from source -> includes the Phase 1-3 features.
+    build:
+      context: ./
+      dockerfile: packages/server/Dockerfile
+    image: finqora-new-server:local
+    expose:
+      - '3000'
+    depends_on:
+      - redis
+    restart: on-failure
+    networks:
+      - new_network
+      # Join the old app's network so the shared MySQL (finqora-mysql) is reachable.
+      - demo_network
+    environment:
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_SECURE=${MAIL_SECURE}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
+      # Shared DB: the old app's MySQL.
+      - DB_HOST=finqora-mysql
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_CHARSET=${DB_CHARSET}
+      - SYSTEM_DB_NAME=${SYSTEM_DB_NAME}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QUEUE_HOST=redis
+      - QUEUE_PORT=6379
+      - TENANT_DB_NAME_PERFIX=${TENANT_DB_NAME_PERFIX}
+      - JWT_SECRET=${JWT_SECRET}
+      - APP_JWT_SECRET=${APP_JWT_SECRET}
+      - BASE_URL=${BASE_URL}
+      - SIGNUP_DISABLED=${SIGNUP_DISABLED}
+      - SIGNUP_ALLOWED_DOMAINS=${SIGNUP_ALLOWED_DOMAINS}
+      - SIGNUP_ALLOWED_EMAILS=${SIGNUP_ALLOWED_EMAILS}
+      - SIGNUP_EMAIL_CONFIRMATION=${SIGNUP_EMAIL_CONFIRMATION}
+      - GOTENBERG_URL=${GOTENBERG_URL}
+      - GOTENBERG_DOCS_URL=${GOTENBERG_DOCS_URL}
+      - EXCHANGE_RATE_SERVICE=${EXCHANGE_RATE_SERVICE}
+      - BANK_FEED_ENABLED=${BANK_FEED_ENABLED}
+      - HOSTED_ON_BIGCAPITAL_CLOUD=${HOSTED_ON_BIGCAPITAL_CLOUD}
+
+  # One-shot: applies the Phase 1-3 migration delta to the SHARED database,
+  # reusing the server image we just built. Exits when done.
+  database_migration:
+    container_name: finqora-new-migration
+    image: finqora-new-server:local
+    # Reuses the image built by the 'server' service above; never pull it.
+    pull_policy: never
+    working_dir: /app
+    command:
+      - sh
+      - -c
+      - >
+        until node -e "require('net').connect(3306,'finqora-mysql').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))" 2>/dev/null;
+        do echo 'waiting for finqora-mysql...'; sleep 3; done;
+        node packages/server/dist/cli.js system:migrate:latest &&
+        node packages/server/dist/cli.js tenants:migrate:latest &&
+        echo 'MIGRATIONS DONE'
+    depends_on:
+      - server
+    environment:
+      - DB_HOST=finqora-mysql
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_CHARSET=${DB_CHARSET}
+      - SYSTEM_DB_NAME=${SYSTEM_DB_NAME}
+      - TENANT_DB_NAME_PERFIX=${TENANT_DB_NAME_PERFIX}
+    restart: 'no'
+    networks:
+      - demo_network
+
+  redis:
+    container_name: finqora-new-redis
+    restart: on-failure
+    build:
+      context: ./docker/redis
+    expose:
+      - '6379'
+    volumes:
+      - redis:/data
+    networks:
+      - new_network
+
+  gotenberg:
+    container_name: finqora-new-gotenberg
+    image: gotenberg/gotenberg:7
+    expose:
+      - '9000'
+    networks:
+      - new_network
+
+volumes:
+  redis:
+    name: finqora_new_redis
+    driver: local
+
+networks:
+  new_network:
+    name: finqora_new_network
+    driver: bridge
+  # The old app's network (docker-compose.prod.yml under project 'finqora').
+  demo_network:
+    name: finqora_bigcapital_network
+    external: true
