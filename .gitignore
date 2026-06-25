@@ -3,8 +3,12 @@ node_modules/
 # Docker volumes data directory
 /data
 
-# Production env file 
+# Production env file
 .env
+
+# Database dumps / backups — contain real emails + password hashes, never commit
+backups/
+*.sql
 
 test-results/
 .qodo

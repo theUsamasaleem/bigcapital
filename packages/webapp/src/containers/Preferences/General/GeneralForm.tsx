@@ -40,7 +40,9 @@ export function PreferencesGeneralForm({ isSubmitting }) {
 
   const { dateFormats, baseCurrencyMutateAbility } = useGeneralFormContext();
 
-  const baseCurrencyDisabled = baseCurrencyMutateAbility.length > 0;
+  // `baseCurrencyMutateAbility` may still be undefined on first direct load
+  // (its query isn't part of the provider's loading gate), so guard the access.
+  const baseCurrencyDisabled = (baseCurrencyMutateAbility?.length ?? 0) > 0;
 
   // Handle close click.
   const handleCloseClick = () => {
