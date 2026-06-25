@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import * as multer from 'multer';
 import * as multerS3 from 'multer-s3';
 import { ClsService } from 'nestjs-cls';
 import { S3_CLIENT, S3Module } from '../S3/S3.module';
@@ -71,32 +72,43 @@ const models = [
         configService: ConfigService,
         s3: S3Client,
         cls: ClsService,
-      ) => ({
-        storage: multerS3({
-          s3,
-          bucket: configService.get('s3.bucket'),
-          contentType: multerS3.AUTO_CONTENT_TYPE,
-          metadata: function (req, file, cb) {
-            cb(null, { fieldName: file.fieldname });
-          },
-          key: function (req, file, cb) {
-            const organizationId = cls.get<string>('organizationId');
-            if (!organizationId) {
-              return cb(
-                new Error('Tenant context required for upload.'),
-                undefined as any,
-              );
-            }
-            cb(null, `${organizationId}/${randomUUID()}`);
-          },
-          acl: function (req, file, cb) {
-            // Conditionally set file to public or private based on isPublic flag
-            const aclValue = true ? 'public-read' : 'private';
-            // Set ACL based on the isPublic flag
-            cb(null, aclValue);
-          },
-        }),
-      }),
+      ) => {
+        const bucket = configService.get('s3.bucket');
+
+        // When no S3 bucket is configured (e.g. on-prem deployments without
+        // object storage) fall back to in-memory storage so the application
+        // still boots. Attachment uploads then require S3 to be configured.
+        if (!bucket) {
+          return { storage: multer.memoryStorage() };
+        }
+
+        return {
+          storage: multerS3({
+            s3,
+            bucket,
+            contentType: multerS3.AUTO_CONTENT_TYPE,
+            metadata: function (req, file, cb) {
+              cb(null, { fieldName: file.fieldname });
+            },
+            key: function (req, file, cb) {
+              const organizationId = cls.get<string>('organizationId');
+              if (!organizationId) {
+                return cb(
+                  new Error('Tenant context required for upload.'),
+                  undefined as any,
+                );
+              }
+              cb(null, `${organizationId}/${randomUUID()}`);
+            },
+            acl: function (req, file, cb) {
+              // Conditionally set file to public or private based on isPublic flag
+              const aclValue = true ? 'public-read' : 'private';
+              // Set ACL based on the isPublic flag
+              cb(null, aclValue);
+            },
+          }),
+        };
+      },
     },
   ],
 })
