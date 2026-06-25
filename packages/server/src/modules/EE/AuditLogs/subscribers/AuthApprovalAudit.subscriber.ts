@@ -5,6 +5,7 @@ import { AuditLogService } from '../AuditLog.service';
 import {
   IApprovalApprovedPayload,
   IApprovalRejectedPayload,
+  IApprovalReturnedPayload,
 } from '@/modules/Approvals/types/Approvals.types';
 
 interface SignInAuditPayload {
@@ -106,6 +107,31 @@ export class AuthApprovalAuditSubscriber {
       });
     } catch (error) {
       this.logger.warn(`Failed to record rejection audit: ${error?.message}`);
+    }
+  }
+
+  @OnEvent(events.approval.onReturned)
+  async onApprovalReturned(payload: IApprovalReturnedPayload) {
+    try {
+      const { oldApprovalRequest: prev, approvalRequest: next, trx } = payload;
+      await this.auditLog.record({
+        trx,
+        action: 'returned',
+        subject: 'Approval',
+        subjectId: next?.id ?? null,
+        module: 'Approvals',
+        oldValues: { status: prev?.status ?? null },
+        newValues: {
+          status: next?.status ?? null,
+          returnedByUserId: next?.returnedByUserId ?? null,
+        },
+        metadata: {
+          documentType: next?.documentType ?? null,
+          documentId: next?.documentId ?? null,
+        },
+      });
+    } catch (error) {
+      this.logger.warn(`Failed to record return audit: ${error?.message}`);
     }
   }
 }

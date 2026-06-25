@@ -87,15 +87,19 @@ Add columns: `old_values` JSON, `new_values` JSON, `module` varchar, `entity_id`
 - Seeded two ways: build-time seeder `seeds/core/20260624121909_seed_predefined_roles.ts` (fresh orgs, runs after the hardcoded-id admin/staff seed) and migration `20260624000000_seed_predefined_roles.ts` (backfills already-seeded tenants only — guarded on `admin` existing to avoid the fresh-build id-collision). Both idempotent by slug.
 - Permissions stored with `value: true` (the ability resolver filters on it) and exact action casing; a unit test validates every (subject, ability) pair against `AbilitySchema` and the Viewer⊆Accountant⊆Finance Manager hierarchy.
 
-### 3) Approval Workflow (extends shipped module)
-- `approval_rules` (`document_type`, `min_amount`, `max_amount`, `active`, `order`)
-- `approval_rule_levels` (`rule_id` FK, `level` int, `approver_role_id` | `approver_user_id`)
-- `approval_requests` (**exists**) + add `rule_id`, `current_level`
-- `approval_request_actions` (`request_id`, `level`, `user_id`, `action`, `reason`, `acted_at`)
+### 3) Approval Workflow — DONE (Phase 3b)
+- `approval_rules` (`document_type` nullable, `min_amount`, `max_amount`, `required_levels`, `active`, `priority`) — migration `20260626000000`. Default rules seeded (`20260626000001`): ≤100,000 PKR → 1 level (Finance Manager); >100,000 PKR → 2 levels (Finance Manager + **Director**). Idempotent (only when no rules exist).
+- `approval_requests` gains `current_level`, `required_levels`, `returned_by_user_id`, `returned_at`; status adds `returned`.
+- `approval_actions` (`approval_request_id`, `level`, `user_id`, `action`, `comment`, `acted_at`) — full per-level trail incl. comments.
+- Multi-level flow: request resolves `required_levels` from rules by amount; each approve advances a level (a user can't approve two levels of the same request); the final level marks it Approved (only then does `onApproved` fire). Reject / **Return** (resets to level 0, status returned) / standalone **Comment** commands + endpoints. `onReturned` is audited.
+- New endpoints under `/approvals`: `GET/POST rules`, `PUT rules/:id`, `PUT :id/return`, `POST :id/comments`, `GET :id/actions`. Still gated by the `approvals` feature flag.
+- Added a **Director** predefined role (View + Approve/Reject) as the 2nd-level approver.
 
-### 4) Pakistan Tax
-- extend `tax_rates`: `tax_type` enum(`GST`,`SST`,`WHT`,`OTHER`), `jurisdiction`, `is_withholding` bool, `wht_section` varchar
-- `withholding_tax_entries` (`source_type`,`source_id`,`tax_rate_id`,`base_amount`,`wht_amount`,`certificate_no`,`date`)
+### 4) Pakistan Tax — DONE (Phase 3a)
+- `tax_rates` extended: `tax_type` (GST/SST/WHT/OTHER), `jurisdiction`, `is_withholding`, `wht_section`, `category` — migration `20260625000000`. Default PK rates seeded (`20260625000001`, idempotent by code): GST 17%/0%, Sindh/Punjab/KPK SST, WHT 153(1)(a/b/c) & 233.
+- `withholding_tax_entries` (`reference_type`, `reference_id`, `tax_rate_id`, `wht_section`, `contact_id`, `base_amount`, `rate`, `wht_amount`, `certificate_no`, `date`).
+- Pure `WithholdingTaxCalculator` engine (half-up 2dp, validated; unit tested) + `WithholdingTaxService` (record/list).
+- Reports (`/tax/...`): `reports/tax-liability` (GST/SST output vs input vs net from item entries), `reports/withholding` (WHT totals + by-section), `withholding/calculate` preview, plus WHT record/list.
 
 ### 5) Enhanced Purchase
 - `purchase_requisitions` + `purchase_requisition_entries`

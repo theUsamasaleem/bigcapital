@@ -8,6 +8,17 @@ export enum ApprovalStatus {
   Pending = 'pending',
   Approved = 'approved',
   Rejected = 'rejected',
+  Returned = 'returned',
+}
+
+/**
+ * The kind of action recorded in the approval action trail.
+ */
+export enum ApprovalActionType {
+  Approve = 'approve',
+  Reject = 'reject',
+  Return = 'return',
+  Comment = 'comment',
 }
 
 /**
@@ -26,6 +37,7 @@ export enum ApprovalAction {
 export enum ApprovalDocumentType {
   Bill = 'Bill',
   Expense = 'Expense',
+  ManualJournal = 'ManualJournal',
 }
 
 // ---- Event payloads ----
@@ -57,6 +69,17 @@ export interface IApprovalRejectingPayload {
 }
 
 export interface IApprovalRejectedPayload {
+  oldApprovalRequest: ApprovalRequest;
+  approvalRequest: ApprovalRequest;
+  trx?: Knex.Transaction;
+}
+
+export interface IApprovalReturningPayload {
+  oldApprovalRequest: ApprovalRequest;
+  trx?: Knex.Transaction;
+}
+
+export interface IApprovalReturnedPayload {
   oldApprovalRequest: ApprovalRequest;
   approvalRequest: ApprovalRequest;
   trx?: Knex.Transaction;

@@ -12,10 +12,10 @@ describe('PredefinedRoles', () => {
   const bySlug = (slug: string) =>
     PREDEFINED_ROLES.find((r) => r.slug === slug)!;
 
-  it('seeds accountant, finance-manager and viewer with unique slugs', () => {
+  it('seeds accountant, finance-manager, viewer and director with unique slugs', () => {
     const slugs = PREDEFINED_ROLES.map((r) => r.slug);
     expect(new Set(slugs)).toEqual(
-      new Set(['accountant', 'finance-manager', 'viewer']),
+      new Set(['accountant', 'finance-manager', 'viewer', 'director']),
     );
   });
 

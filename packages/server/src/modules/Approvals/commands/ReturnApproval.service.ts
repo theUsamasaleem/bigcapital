@@ -8,16 +8,16 @@ import { TenantModelProxy } from '@/modules/System/models/TenantBaseModel';
 import { events } from '@/common/events/events';
 import { ApprovalRequest } from '../models/ApprovalRequest.model';
 import { ApprovalAction } from '../models/ApprovalAction.model';
-import { RejectApprovalDto } from '../dtos/Approval.dto';
+import { ReturnApprovalDto } from '../dtos/Approval.dto';
 import {
   ApprovalActionType,
   ApprovalStatus,
-  IApprovalRejectedPayload,
-  IApprovalRejectingPayload,
+  IApprovalReturnedPayload,
+  IApprovalReturningPayload,
 } from '../types/Approvals.types';
 
 @Injectable()
-export class RejectApprovalService {
+export class ReturnApprovalService {
   constructor(
     private readonly uow: UnitOfWork,
     private readonly eventPublisher: EventEmitter2,
@@ -35,14 +35,16 @@ export class RejectApprovalService {
   ) {}
 
   /**
-   * Rejects the given pending approval request.
+   * Returns a pending approval request to the requester for changes. The
+   * progress is reset to level 0 so that, once corrected, it restarts the
+   * approval chain.
    * @param {number} approvalRequestId
-   * @param {RejectApprovalDto} dto
+   * @param {ReturnApprovalDto} dto
    * @returns {Promise<ApprovalRequest>}
    */
-  public async reject(
+  public async return(
     approvalRequestId: number,
-    dto: RejectApprovalDto,
+    dto: ReturnApprovalDto,
   ): Promise<ApprovalRequest> {
     const currentUser = await this.tenancyContext.getSystemUser();
 
@@ -53,43 +55,41 @@ export class RejectApprovalService {
 
     if (!oldApprovalRequest.isPending) {
       throw new BadRequestException(
-        'Only a pending approval request can be rejected.',
+        'Only a pending approval request can be returned.',
       );
     }
 
     return this.uow.withTransaction(async (trx: Knex.Transaction) => {
-      // Triggers `onApprovalRejecting` event.
-      await this.eventPublisher.emitAsync(events.approval.onRejecting, {
+      // Triggers `onApprovalReturning` event.
+      await this.eventPublisher.emitAsync(events.approval.onReturning, {
         oldApprovalRequest,
         trx,
-      } as IApprovalRejectingPayload);
+      } as IApprovalReturningPayload);
 
-      // Record the reject action (trail + comment).
       await this.approvalActionModel().query(trx).insert({
         approvalRequestId,
         level: (oldApprovalRequest.currentLevel ?? 0) + 1,
         userId: currentUser.id,
-        action: ApprovalActionType.Reject,
-        comment: dto.reason ?? dto.notes ?? null,
+        action: ApprovalActionType.Return,
+        comment: dto.comment,
         actedAt: moment().toMySqlDateTime(),
       });
 
       const approvalRequest = await this.approvalRequestModel()
         .query(trx)
         .patchAndFetchById(approvalRequestId, {
-          status: ApprovalStatus.Rejected,
-          rejectedByUserId: currentUser.id,
-          rejectedAt: moment().toMySqlDateTime(),
-          reason: dto.reason,
-          notes: dto.notes ?? oldApprovalRequest.notes,
+          status: ApprovalStatus.Returned,
+          returnedByUserId: currentUser.id,
+          returnedAt: moment().toMySqlDateTime(),
+          currentLevel: 0,
         });
 
-      // Triggers `onApprovalRejected` event.
-      await this.eventPublisher.emitAsync(events.approval.onRejected, {
+      // Triggers `onApprovalReturned` event.
+      await this.eventPublisher.emitAsync(events.approval.onReturned, {
         oldApprovalRequest,
         approvalRequest,
         trx,
-      } as IApprovalRejectedPayload);
+      } as IApprovalReturnedPayload);
 
       return approvalRequest;
     });

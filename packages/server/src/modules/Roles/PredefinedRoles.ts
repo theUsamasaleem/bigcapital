@@ -136,10 +136,33 @@ const FINANCE_MANAGER: PredefinedRoleDef = {
 };
 
 /**
+ * Director — executive second-level approver for high-value documents
+ * (> 100,000 PKR). Read access across records and reports, plus full approval
+ * authority; not a day-to-day bookkeeper (no create/edit/delete).
+ */
+const DIRECTOR: PredefinedRoleDef = {
+  slug: 'director',
+  name: 'Director',
+  description:
+    'Executive oversight: views records and reports and gives final approval.',
+  permissions: [
+    ...viewAllCrud(),
+    { subject: 'Cashflow', ability: 'View' },
+    { subject: 'Attachment', ability: 'View' },
+    { subject: 'AuditLog', ability: 'View' },
+    { subject: 'Approval', ability: 'View' },
+    { subject: 'Approval', ability: 'Approve' },
+    { subject: 'Approval', ability: 'Reject' },
+    ...allReports(),
+  ],
+};
+
+/**
  * The roles seeded in addition to the built-in `admin` (Administrator) role.
  */
 export const PREDEFINED_ROLES: PredefinedRoleDef[] = [
   ACCOUNTANT,
   FINANCE_MANAGER,
   VIEWER,
+  DIRECTOR,
 ];

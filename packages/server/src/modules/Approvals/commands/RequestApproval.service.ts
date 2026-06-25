@@ -7,6 +7,7 @@ import { TenancyContext } from '@/modules/Tenancy/TenancyContext.service';
 import { TenantModelProxy } from '@/modules/System/models/TenantBaseModel';
 import { events } from '@/common/events/events';
 import { ApprovalRequest } from '../models/ApprovalRequest.model';
+import { ApprovalRulesService } from './ApprovalRules.service';
 import { RequestApprovalDto } from '../dtos/Approval.dto';
 import {
   ApprovalStatus,
@@ -20,6 +21,7 @@ export class RequestApprovalService {
     private readonly uow: UnitOfWork,
     private readonly eventPublisher: EventEmitter2,
     private readonly tenancyContext: TenancyContext,
+    private readonly approvalRulesService: ApprovalRulesService,
 
     @Inject(ApprovalRequest.name)
     private readonly approvalRequestModel: TenantModelProxy<
@@ -41,6 +43,13 @@ export class RequestApprovalService {
   ): Promise<ApprovalRequest> {
     const currentUser = await this.tenancyContext.getSystemUser();
 
+    // Resolve how many approval levels this document needs from the configured
+    // amount-threshold rules (e.g. <=100k = 1 level, >100k = 2 levels).
+    const requiredLevels = await this.approvalRulesService.resolveRequiredLevels(
+      documentType,
+      dto.amount ?? 0,
+    );
+
     return this.uow.withTransaction(async (trx: Knex.Transaction) => {
       // Triggers `onApprovalRequesting` event.
       await this.eventPublisher.emitAsync(events.approval.onRequesting, {
@@ -59,6 +68,8 @@ export class RequestApprovalService {
           notes: dto.notes ?? null,
           requestedByUserId: currentUser.id,
           requestedAt: moment().toMySqlDateTime(),
+          currentLevel: 0,
+          requiredLevels,
         });
 
       // Triggers `onApprovalRequested` event.

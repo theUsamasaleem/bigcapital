@@ -1,3 +1,4 @@
+import { Model } from 'objection';
 import { BaseModel } from '@/models/Model';
 import { InjectModelMeta } from '@/modules/Tenancy/TenancyModels/decorators/InjectModelMeta.decorator';
 import { ApprovalRequestMeta } from './ApprovalRequest.meta';
@@ -14,11 +15,15 @@ export class ApprovalRequest extends BaseModel {
   requestedByUserId!: number | null;
   approvedByUserId!: number | null;
   rejectedByUserId!: number | null;
+  returnedByUserId!: number | null;
   notes!: string | null;
   reason!: string | null;
+  currentLevel!: number;
+  requiredLevels!: number;
   requestedAt!: Date | string | null;
   approvedAt!: Date | string | null;
   rejectedAt!: Date | string | null;
+  returnedAt!: Date | string | null;
 
   /**
    * Table name.
@@ -38,7 +43,7 @@ export class ApprovalRequest extends BaseModel {
    * Virtual attributes.
    */
   static get virtualAttributes() {
-    return ['isPending', 'isApproved', 'isRejected'];
+    return ['isPending', 'isApproved', 'isRejected', 'isReturned'];
   }
 
   get isPending() {
@@ -51,6 +56,10 @@ export class ApprovalRequest extends BaseModel {
 
   get isRejected() {
     return this.status === ApprovalStatus.Rejected;
+  }
+
+  get isReturned() {
+    return this.status === ApprovalStatus.Returned;
   }
 
   /**
@@ -75,6 +84,27 @@ export class ApprovalRequest extends BaseModel {
         query
           .where('document_type', documentType)
           .where('document_id', documentId);
+      },
+    };
+  }
+
+  /**
+   * Relationship mapping.
+   */
+  static get relationMappings() {
+    const { ApprovalAction } = require('./ApprovalAction.model');
+
+    return {
+      /**
+       * The action trail for this approval request.
+       */
+      actions: {
+        relation: Model.HasManyRelation,
+        modelClass: ApprovalAction,
+        join: {
+          from: 'approval_requests.id',
+          to: 'approval_actions.approvalRequestId',
+        },
       },
     };
   }

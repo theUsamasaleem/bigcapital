@@ -43,3 +43,21 @@ export class RejectApprovalDto {
   @IsString()
   notes?: string;
 }
+
+export class ReturnApprovalDto {
+  @ApiPropertyOptional({
+    description: 'Comment explaining why the request is returned to requester.',
+  })
+  @IsNotEmpty()
+  @IsString()
+  comment: string;
+}
+
+export class CommentApprovalDto {
+  @ApiPropertyOptional({
+    description: 'A comment added to the approval request.',
+  })
+  @IsNotEmpty()
+  @IsString()
+  comment: string;
+}

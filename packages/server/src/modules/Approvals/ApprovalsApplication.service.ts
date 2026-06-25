@@ -4,16 +4,23 @@ import { Features } from '@/common/types/Features';
 import { RequestApprovalService } from './commands/RequestApproval.service';
 import { ApproveApprovalService } from './commands/ApproveApproval.service';
 import { RejectApprovalService } from './commands/RejectApproval.service';
+import { ReturnApprovalService } from './commands/ReturnApproval.service';
+import { CommentApprovalService } from './commands/CommentApproval.service';
+import { ApprovalRulesService } from './commands/ApprovalRules.service';
 import {
   GetApprovalsService,
   IGetApprovalsFilter,
 } from './queries/GetApprovals.service';
 import { GetApprovalService } from './queries/GetApproval.service';
 import { ApprovalRequest } from './models/ApprovalRequest.model';
+import { ApprovalRule } from './models/ApprovalRule.model';
+import { ApprovalAction } from './models/ApprovalAction.model';
 import {
   ApproveApprovalDto,
+  CommentApprovalDto,
   RejectApprovalDto,
   RequestApprovalDto,
+  ReturnApprovalDto,
 } from './dtos/Approval.dto';
 
 @Injectable()
@@ -23,6 +30,9 @@ export class ApprovalsApplication {
     private readonly requestApprovalService: RequestApprovalService,
     private readonly approveApprovalService: ApproveApprovalService,
     private readonly rejectApprovalService: RejectApprovalService,
+    private readonly returnApprovalService: ReturnApprovalService,
+    private readonly commentApprovalService: CommentApprovalService,
+    private readonly approvalRulesService: ApprovalRulesService,
     private readonly getApprovalsService: GetApprovalsService,
     private readonly getApprovalService: GetApprovalService,
   ) {}
@@ -94,5 +104,64 @@ export class ApprovalsApplication {
   ): Promise<ApprovalRequest> {
     await this.assertEnabled();
     return this.getApprovalService.getApproval(approvalRequestId);
+  }
+
+  /**
+   * Returns the given approval request to its requester.
+   */
+  public async returnRequest(
+    approvalRequestId: number,
+    dto: ReturnApprovalDto,
+  ): Promise<ApprovalRequest> {
+    await this.assertEnabled();
+    return this.returnApprovalService.return(approvalRequestId, dto);
+  }
+
+  /**
+   * Adds a comment to the given approval request.
+   */
+  public async comment(
+    approvalRequestId: number,
+    dto: CommentApprovalDto,
+  ): Promise<ApprovalAction> {
+    await this.assertEnabled();
+    return this.commentApprovalService.comment(approvalRequestId, dto);
+  }
+
+  /**
+   * Retrieves the action trail of the given approval request.
+   */
+  public async getActions(
+    approvalRequestId: number,
+  ): Promise<ApprovalAction[]> {
+    await this.assertEnabled();
+    return this.commentApprovalService.getActions(approvalRequestId);
+  }
+
+  /**
+   * Lists the configured approval rules.
+   */
+  public async getRules(): Promise<ApprovalRule[]> {
+    await this.assertEnabled();
+    return this.approvalRulesService.getRules();
+  }
+
+  /**
+   * Creates a new approval rule.
+   */
+  public async createRule(data: Partial<ApprovalRule>): Promise<ApprovalRule> {
+    await this.assertEnabled();
+    return this.approvalRulesService.createRule(data);
+  }
+
+  /**
+   * Updates the given approval rule.
+   */
+  public async updateRule(
+    id: number,
+    data: Partial<ApprovalRule>,
+  ): Promise<ApprovalRule> {
+    await this.assertEnabled();
+    return this.approvalRulesService.updateRule(id, data);
   }
 }

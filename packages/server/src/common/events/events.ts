@@ -804,5 +804,7 @@ export const events = {
     onApproved: 'onApprovalApproved',
     onRejecting: 'onApprovalRejecting',
     onRejected: 'onApprovalRejected',
+    onReturning: 'onApprovalReturning',
+    onReturned: 'onApprovalReturned',
   },
 };
