@@ -20,15 +20,26 @@ import { WriteTaxTransactionsItemEntries } from './WriteTaxTransactionsItemEntri
 import { SyncItemTaxRateOnEditTaxRate } from './SyncItemTaxRateOnEditTaxRate';
 import { RegisterTenancyModel } from '../Tenancy/TenancyModels/Tenancy.module';
 import { TaxRateTransaction } from './models/TaxRateTransaction.model';
+import { WithholdingTaxEntry } from './models/WithholdingTaxEntry.model';
 import { TaxRatesExportable } from './TaxRatesExportable';
 import { TaxRatesImportable } from './TaxRatesImportable';
+import { PakistanTaxController } from './pakistan/PakistanTax.controller';
+import { WithholdingTaxCalculator } from './pakistan/WithholdingTaxCalculator';
+import { WithholdingTaxService } from './pakistan/WithholdingTax.service';
+import { TaxReportsService } from './pakistan/TaxReports.service';
 
-const models = [RegisterTenancyModel(TaxRateTransaction)];
+const models = [
+  RegisterTenancyModel(TaxRateTransaction),
+  RegisterTenancyModel(WithholdingTaxEntry),
+];
 
 @Module({
   imports: [TenancyModule, ...models],
-  controllers: [TaxRatesController],
+  controllers: [TaxRatesController, PakistanTaxController],
   providers: [
+    WithholdingTaxCalculator,
+    WithholdingTaxService,
+    TaxReportsService,
     CreateTaxRate,
     EditTaxRateService,
     DeleteTaxRateService,
@@ -49,6 +60,11 @@ const models = [RegisterTenancyModel(TaxRateTransaction)];
     TaxRatesExportable,
     TaxRatesImportable,
   ],
-  exports: [ItemEntriesTaxTransactions, ...models],
+  exports: [
+    ItemEntriesTaxTransactions,
+    WithholdingTaxCalculator,
+    WithholdingTaxService,
+    ...models,
+  ],
 })
 export class TaxRatesModule {}

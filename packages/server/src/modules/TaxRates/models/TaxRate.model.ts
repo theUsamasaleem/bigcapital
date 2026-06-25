@@ -14,6 +14,12 @@ export class TaxRateModel extends BaseModel {
   name!: string;
   rate!: number;
   description?: string;
+  // Pakistan tax classification (Phase 3a).
+  taxType?: string;
+  jurisdiction?: string | null;
+  isWithholding?: boolean;
+  whtSection?: string | null;
+  category?: string | null;
 
   /**
    * Table name

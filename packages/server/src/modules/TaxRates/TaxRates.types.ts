@@ -88,3 +88,39 @@ export enum TaxRateAction {
   DELETE = 'Delete',
   VIEW = 'View',
 }
+
+/**
+ * Pakistan tax classification (Phase 3a).
+ * - GST: federal General Sales Tax on goods.
+ * - SST: provincial Sales Tax on Services (Sindh/Punjab/KPK/Balochistan).
+ * - WHT: Withholding Tax (income tax deducted at source).
+ * - OTHER: any other/legacy rate.
+ */
+export enum TaxType {
+  GST = 'GST',
+  SST = 'SST',
+  WHT = 'WHT',
+  OTHER = 'OTHER',
+}
+
+export interface IWithholdingTaxEntry {
+  id?: number;
+  referenceType: string;
+  referenceId: number;
+  taxRateId?: number | null;
+  whtSection?: string | null;
+  contactId?: number | null;
+  baseAmount: number;
+  rate: number;
+  whtAmount: number;
+  certificateNo?: string | null;
+  date?: string | null;
+}
+
+/**
+ * Input for the WHT calculation engine.
+ */
+export interface IWithholdingTaxInput {
+  baseAmount: number;
+  rate: number;
+}
