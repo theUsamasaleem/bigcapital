@@ -1,3 +1,4 @@
+import { Model } from 'objection';
 import { TenantBaseModel } from '@/modules/System/models/TenantBaseModel';
 
 export class DocumentModel extends TenantBaseModel {
@@ -5,6 +6,7 @@ export class DocumentModel extends TenantBaseModel {
   size!: number;
   mimeType!: string;
   key!: string;
+  version!: number;
 
   /**
    * Table name
@@ -18,5 +20,26 @@ export class DocumentModel extends TenantBaseModel {
    */
   get timestamps() {
     return ['createdAt', 'updatedAt'];
+  }
+
+  /**
+   * Relationship mapping.
+   */
+  static get relationMappings() {
+    const { DocumentVersionModel } = require('./DocumentVersion.model');
+
+    return {
+      /**
+       * Document historical versions.
+       */
+      versions: {
+        relation: Model.HasManyRelation,
+        modelClass: DocumentVersionModel,
+        join: {
+          from: 'documents.id',
+          to: 'document_versions.documentId',
+        },
+      },
+    };
   }
 }

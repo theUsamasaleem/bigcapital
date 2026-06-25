@@ -30,6 +30,10 @@ export class FeaturesConfigure {
         name: Features.APPROVALS,
         defaultValue: false,
       },
+      {
+        name: Features.DOCUMENT_VERSIONING,
+        defaultValue: false,
+      },
     ];
   }
 }

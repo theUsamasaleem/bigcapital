@@ -9,4 +9,14 @@ describe('Attachments (e2e)', () => {
       .set('Authorization', AuthorizationHeader)
       .expect(200);
   });
+
+  it('/attachments/:id/versions (GET) is gated by the versioning feature', () => {
+    // The document-versioning feature is off by default, so the endpoint must
+    // be reachable (route wired) yet forbidden until the feature is enabled.
+    return request(app.getHttpServer())
+      .get('/attachments/test-id/versions')
+      .set('organization-id', orgainzationId)
+      .set('Authorization', AuthorizationHeader)
+      .expect(403);
+  });
 });

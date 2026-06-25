@@ -68,9 +68,15 @@ Add columns: `old_values` JSON, `new_values` JSON, `module` varchar, `entity_id`
 `ip` (exists), keep `action`,`subject`,`user_id`. Indexes on
 `(subject, subject_id)`, `(user_id)`, `(created_at)`.
 
-### 2) Document Management
-- `document_versions` (`document_id` FK, `version` int, `media_id`, `uploaded_by`, `size`, `mime`, `created_at`)
-- reuse `documents`/`document_links` for polymorphic linking (`link_type`,`link_id`).
+### 2) Document Management — DONE (Phase 2.2)
+- `document_versions` (`document_id` FK, `version` int, `key`, `mime_type`, `size`, `origin_name`, `uploaded_by_user_id`, `created_at`) — migration `20260623000000_create_document_versions_table.ts`. `documents` gains a `version` int (default 1).
+- Non-destructive version flow: each upload keeps its own S3 object; "upload new version" snapshots the current file into `document_versions` and points the document at the new file (version++). "Restore" snapshots current, then re-points at the chosen historical file (version++). No S3 copy/delete on restore — old objects are preserved.
+- Endpoints (feature-flagged by `documentVersioning`, default OFF): `POST /attachments/:id/versions`, `GET /attachments/:id/versions`, `POST /attachments/:id/versions/:versionId/restore`.
+- Delete now cascades version rows + best-effort deletes their S3 objects; delete already gated by CASL `AttachmentAction.Delete`.
+- Wired `@InjectAttachable()` onto **Customer** and **Vendor** (Invoices/Bills/Expenses/Receipts/Estimates/CreditNotes/Journals/Payments already attachable).
+- Frontend hooks: `useAttachmentVersions`, `useUploadAttachmentVersion`, `useRestoreAttachmentVersion` (raw fetcher; not in published SDK).
+- **PO note:** the base product has **no Purchase Orders module** (BigCapital ships none), so PO attachments are deferred until a POs module is added in Phase 5/Enhanced Purchase.
+- reuse `documents`/`document_links` for polymorphic linking (`model_ref`,`model_id`).
 
 ### 3) Approval Workflow (extends shipped module)
 - `approval_rules` (`document_type`, `min_amount`, `max_amount`, `active`, `order`)

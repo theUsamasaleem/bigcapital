@@ -3,6 +3,7 @@ export enum Features {
   BRANCHES = 'branches',
   BankSyncing = 'BankSyncing',
   APPROVALS = 'approvals',
+  DOCUMENT_VERSIONING = 'documentVersioning',
 }
 
 export interface IFeatureAllItem {

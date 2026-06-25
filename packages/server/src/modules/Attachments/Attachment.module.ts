@@ -23,20 +23,24 @@ import { AttachmentsController } from './Attachments.controller';
 import { RegisterTenancyModel } from '../Tenancy/TenancyModels/Tenancy.module';
 import { DocumentModel } from './models/Document.model';
 import { DocumentLinkModel } from './models/DocumentLink.model';
+import { DocumentVersionModel } from './models/DocumentVersion.model';
 import { AttachmentsApplication } from './AttachmentsApplication';
 import { UploadDocument } from './UploadDocument';
+import { DocumentVersions } from './DocumentVersions';
 import { AttachmentUploadPipeline } from './S3UploadPipeline';
 import { MULTER_MODULE_OPTIONS } from '@/common/constants/files.constants';
 import { ConfigService } from '@nestjs/config';
 import { S3Client } from '@aws-sdk/client-s3';
+import { FeaturesModule } from '../Features/Features.module';
 
 const models = [
   RegisterTenancyModel(DocumentModel),
   RegisterTenancyModel(DocumentLinkModel),
+  RegisterTenancyModel(DocumentVersionModel),
 ];
 
 @Module({
-  imports: [S3Module, ...models],
+  imports: [S3Module, FeaturesModule, ...models],
   exports: [...models, GetAttachmentPresignedUrl],
   controllers: [AttachmentsController],
   providers: [
@@ -58,6 +62,7 @@ const models = [
     AttachmentsOnSaleEstimates,
     AttachmentsApplication,
     UploadDocument,
+    DocumentVersions,
     AttachmentUploadPipeline,
     {
       provide: MULTER_MODULE_OPTIONS,

@@ -197,4 +197,79 @@ export class AttachmentsController {
 
     return { presignedUrl };
   }
+
+  /**
+   * Uploads a new version of an existing document (versioning feature).
+   */
+  @Post('/:id/versions')
+  @HttpCode(200)
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Upload a new version of an attachment' })
+  @ApiParam({ name: 'id', description: 'Current attachment key' })
+  @ApiBody({ description: 'Upload new version', type: UploadAttachmentDto })
+  @ApiResponse({
+    status: 200,
+    description: 'A new document version has been uploaded successfully',
+  })
+  async uploadAttachmentVersion(
+    @Param('id') documentKey: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new UnauthorizedException({
+        errorType: 'FILE_UPLOAD_FAILED',
+        message: 'No file uploaded.',
+      });
+    }
+    const data = await this.attachmentsApplication.uploadVersion(
+      documentKey,
+      file,
+    );
+    return {
+      status: 200,
+      message: 'A new document version has been uploaded successfully.',
+      data,
+    };
+  }
+
+  /**
+   * Lists the version history of an attachment (versioning feature).
+   */
+  @Get('/:id/versions')
+  @ApiOperation({ summary: 'List version history of an attachment' })
+  @ApiParam({ name: 'id', description: 'Current attachment key' })
+  @ApiResponse({ status: 200, description: 'Returns the version history' })
+  @RequirePermission(AttachmentAction.View, AbilitySubject.Attachment)
+  async getAttachmentVersions(@Param('id') documentKey: string) {
+    const data = await this.attachmentsApplication.listVersions(documentKey);
+    return { data };
+  }
+
+  /**
+   * Restores a previous version of an attachment (versioning feature).
+   */
+  @Post('/:id/versions/:versionId/restore')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Restore a previous version of an attachment' })
+  @ApiParam({ name: 'id', description: 'Current attachment key' })
+  @ApiParam({ name: 'versionId', description: 'Document version id to restore' })
+  @ApiResponse({
+    status: 200,
+    description: 'The document version has been restored successfully',
+  })
+  async restoreAttachmentVersion(
+    @Param('id') documentKey: string,
+    @Param('versionId') versionId: string,
+  ) {
+    const data = await this.attachmentsApplication.restoreVersion(
+      documentKey,
+      Number(versionId),
+    );
+    return {
+      status: 200,
+      message: 'The document version has been restored successfully.',
+      data,
+    };
+  }
 }

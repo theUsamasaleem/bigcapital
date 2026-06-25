@@ -6,6 +6,7 @@ import { InjectModelMeta } from '@/modules/Tenancy/TenancyModels/decorators/Inje
 import { VendorMeta } from './Vendor.meta';
 import { InjectModelDefaultViews } from '@/modules/Views/decorators/InjectModelDefaultViews.decorator';
 import { VendorDefaultViews } from '../constants';
+import { InjectAttachable } from '@/modules/Attachments/decorators/InjectAttachable.decorator';
 
 export class VendorQueryBuilder<
   M extends Model,
@@ -23,6 +24,7 @@ export class VendorQueryBuilder<
   }
 }
 
+@InjectAttachable()
 @ExportableModel()
 @InjectModelMeta(VendorMeta)
 @InjectModelDefaultViews(VendorDefaultViews)

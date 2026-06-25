@@ -6,6 +6,7 @@ import { InjectModelDefaultViews } from '@/modules/Views/decorators/InjectModelD
 import { CustomerDefaultViews } from '../constants';
 import { BaseQueryBuilder } from '@/models/Model';
 import { Knex } from 'knex';
+import { InjectAttachable } from '@/modules/Attachments/decorators/InjectAttachable.decorator';
 
 export class CustomerQueryBuilder<
   M extends Model,
@@ -23,6 +24,7 @@ export class CustomerQueryBuilder<
   }
 }
 
+@InjectAttachable()
 @InjectModelMeta(CustomerMeta)
 @InjectModelDefaultViews(CustomerDefaultViews)
 export class Customer extends TenantBaseModel {
