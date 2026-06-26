@@ -1,4 +1,5 @@
 import type { ApiFetcher } from './fetch-utils';
+import { postFormData } from './fetch-utils';
 import { paths } from './schema';
 
 export const ATTACHMENTS_ROUTES = {
@@ -25,12 +26,16 @@ export async function uploadAttachment(
   fetcher: ApiFetcher,
   formData: FormData
 ): Promise<UploadAttachmentResponse> {
-  const post = fetcher.path(ATTACHMENTS_ROUTES.LIST).method('post').create();
-  // Generated client expects typed body; FormData is valid for multipart/form-data at runtime
-  const res = await (
-    post as unknown as (body: FormData) => Promise<{ data?: { data?: UploadAttachmentResponse } }>
-  )(formData);
-  const data = (res as { data?: { data?: UploadAttachmentResponse } })?.data?.data;
+  // The generated openapi client JSON.stringifies the body and forces a
+  // Content-Type of application/json, which strips the multipart payload and
+  // makes the server receive no file. Use a raw multipart POST so the browser
+  // sets the multipart/form-data boundary itself.
+  const res = await postFormData<{ data?: UploadAttachmentResponse }>(
+    fetcher,
+    ATTACHMENTS_ROUTES.LIST,
+    formData
+  );
+  const data = res?.data;
   if (!data) {
     throw new Error('Upload attachment: no data in response');
   }

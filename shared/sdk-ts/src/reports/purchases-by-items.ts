@@ -1,6 +1,6 @@
 import type { OpArgType } from 'openapi-typescript-fetch';
 import type { ApiFetcher } from '../fetch-utils';
-import { withNestedQuery } from "../fetch-utils";
+import { withNestedQuery, getBlob } from "../fetch-utils";
 import type { paths } from '../schema';
 import {
   OpForPath,
@@ -54,10 +54,13 @@ export async function fetchPurchasesByItemsCsv(
   fetcher: ApiFetcher,
   query: PurchasesByItemsCsvQuery
 ): Promise<PurchasesByItemsCsvResponse> {
-  const get = fetcher.path(PURCHASES_BY_ITEMS_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/csv" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as PurchasesByItemsCsvResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    PURCHASES_BY_ITEMS_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/csv' },
+  ) as Promise<PurchasesByItemsCsvResponse>;
 }
 
 // XLSX format (returns Blob)
@@ -68,10 +71,13 @@ export async function fetchPurchasesByItemsXlsx(
   fetcher: ApiFetcher,
   query: PurchasesByItemsXlsxQuery
 ): Promise<PurchasesByItemsXlsxResponse> {
-  const get = fetcher.path(PURCHASES_BY_ITEMS_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/xlsx" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as PurchasesByItemsXlsxResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    PURCHASES_BY_ITEMS_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/xlsx' },
+  ) as Promise<PurchasesByItemsXlsxResponse>;
 }
 
 // PDF format (returns Blob)
@@ -82,8 +88,11 @@ export async function fetchPurchasesByItemsPdf(
   fetcher: ApiFetcher,
   query: PurchasesByItemsPdfQuery
 ): Promise<PurchasesByItemsPdfResponse> {
-  const get = fetcher.path(PURCHASES_BY_ITEMS_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/pdf" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as PurchasesByItemsPdfResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    PURCHASES_BY_ITEMS_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/pdf' },
+  ) as Promise<PurchasesByItemsPdfResponse>;
 }

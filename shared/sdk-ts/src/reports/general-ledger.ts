@@ -1,6 +1,6 @@
 import type { OpArgType } from 'openapi-typescript-fetch';
 import type { ApiFetcher } from '../fetch-utils';
-import { withNestedQuery } from "../fetch-utils";
+import { withNestedQuery, getBlob } from "../fetch-utils";
 import type { paths } from '../schema';
 import {
   OpForPath,
@@ -54,10 +54,13 @@ export async function fetchGeneralLedgerCsv(
   fetcher: ApiFetcher,
   query: GeneralLedgerCsvQuery
 ): Promise<GeneralLedgerCsvResponse> {
-  const get = fetcher.path(GENERAL_LEDGER_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/csv" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as GeneralLedgerCsvResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    GENERAL_LEDGER_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/csv' },
+  ) as Promise<GeneralLedgerCsvResponse>;
 }
 
 // XLSX format (returns Blob)
@@ -68,10 +71,13 @@ export async function fetchGeneralLedgerXlsx(
   fetcher: ApiFetcher,
   query: GeneralLedgerXlsxQuery
 ): Promise<GeneralLedgerXlsxResponse> {
-  const get = fetcher.path(GENERAL_LEDGER_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/xlsx" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as GeneralLedgerXlsxResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    GENERAL_LEDGER_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/xlsx' },
+  ) as Promise<GeneralLedgerXlsxResponse>;
 }
 
 // PDF format (returns Blob)
@@ -82,8 +88,11 @@ export async function fetchGeneralLedgerPdf(
   fetcher: ApiFetcher,
   query: GeneralLedgerPdfQuery
 ): Promise<GeneralLedgerPdfResponse> {
-  const get = fetcher.path(GENERAL_LEDGER_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/pdf" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as GeneralLedgerPdfResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    GENERAL_LEDGER_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/pdf' },
+  ) as Promise<GeneralLedgerPdfResponse>;
 }

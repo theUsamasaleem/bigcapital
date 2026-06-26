@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React from 'react';
-import { useApplicationBoot } from '@/components';
+import { useApplicationBoot, BrandingThemeProvider } from '@/components';
 import { useAuthMetadata } from '@/hooks/query/authentication';
 
 /**
@@ -15,5 +15,14 @@ export function PrivatePagesProvider({
 
   const isLoading = isAppBootLoading || isAuthMetaLoading;
 
-  return <React.Fragment>{!isLoading ? children : null}</React.Fragment>;
+  return (
+    <React.Fragment>
+      {!isLoading ? (
+        <React.Fragment>
+          <BrandingThemeProvider />
+          {children}
+        </React.Fragment>
+      ) : null}
+    </React.Fragment>
+  );
 }

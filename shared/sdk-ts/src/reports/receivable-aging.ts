@@ -1,6 +1,6 @@
 import type { OpArgType } from 'openapi-typescript-fetch';
 import type { ApiFetcher } from '../fetch-utils';
-import { withNestedQuery } from "../fetch-utils";
+import { withNestedQuery, getBlob } from "../fetch-utils";
 import type { paths } from '../schema';
 import {
   OpForPath,
@@ -54,10 +54,13 @@ export async function fetchReceivableAgingCsv(
   fetcher: ApiFetcher,
   query: ReceivableAgingCsvQuery
 ): Promise<ReceivableAgingCsvResponse> {
-  const get = fetcher.path(RECEIVABLE_AGING_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/csv" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as ReceivableAgingCsvResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    RECEIVABLE_AGING_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/csv' },
+  ) as Promise<ReceivableAgingCsvResponse>;
 }
 
 // XLSX format (returns Blob)
@@ -68,10 +71,13 @@ export async function fetchReceivableAgingXlsx(
   fetcher: ApiFetcher,
   query: ReceivableAgingXlsxQuery
 ): Promise<ReceivableAgingXlsxResponse> {
-  const get = fetcher.path(RECEIVABLE_AGING_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/xlsx" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as ReceivableAgingXlsxResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    RECEIVABLE_AGING_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/xlsx' },
+  ) as Promise<ReceivableAgingXlsxResponse>;
 }
 
 // PDF format (returns Blob)
@@ -82,8 +88,11 @@ export async function fetchReceivableAgingPdf(
   fetcher: ApiFetcher,
   query: ReceivableAgingPdfQuery
 ): Promise<ReceivableAgingPdfResponse> {
-  const get = fetcher.path(RECEIVABLE_AGING_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/pdf" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as ReceivableAgingPdfResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    RECEIVABLE_AGING_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/pdf' },
+  ) as Promise<ReceivableAgingPdfResponse>;
 }

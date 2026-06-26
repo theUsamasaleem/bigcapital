@@ -1,6 +1,6 @@
 import type { OpArgType } from 'openapi-typescript-fetch';
 import type { ApiFetcher } from '../fetch-utils';
-import { withNestedQuery } from "../fetch-utils";
+import { withNestedQuery, getBlob } from "../fetch-utils";
 import type { paths } from '../schema';
 import {
   OpForPath,
@@ -54,10 +54,13 @@ export async function fetchSalesTaxLiabilityCsv(
   fetcher: ApiFetcher,
   query: SalesTaxLiabilityCsvQuery
 ): Promise<SalesTaxLiabilityCsvResponse> {
-  const get = fetcher.path(SALES_TAX_LIABILITY_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/csv" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as SalesTaxLiabilityCsvResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    SALES_TAX_LIABILITY_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/csv' },
+  ) as Promise<SalesTaxLiabilityCsvResponse>;
 }
 
 // XLSX format (returns Blob)
@@ -68,10 +71,13 @@ export async function fetchSalesTaxLiabilityXlsx(
   fetcher: ApiFetcher,
   query: SalesTaxLiabilityXlsxQuery
 ): Promise<SalesTaxLiabilityXlsxResponse> {
-  const get = fetcher.path(SALES_TAX_LIABILITY_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/xlsx" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as SalesTaxLiabilityXlsxResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    SALES_TAX_LIABILITY_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/xlsx' },
+  ) as Promise<SalesTaxLiabilityXlsxResponse>;
 }
 
 // PDF format (returns Blob)
@@ -82,8 +88,11 @@ export async function fetchSalesTaxLiabilityPdf(
   fetcher: ApiFetcher,
   query: SalesTaxLiabilityPdfQuery
 ): Promise<SalesTaxLiabilityPdfResponse> {
-  const get = fetcher.path(SALES_TAX_LIABILITY_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/pdf" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as SalesTaxLiabilityPdfResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    SALES_TAX_LIABILITY_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/pdf' },
+  ) as Promise<SalesTaxLiabilityPdfResponse>;
 }

@@ -1,6 +1,6 @@
 import type { OpArgType } from 'openapi-typescript-fetch';
 import type { ApiFetcher } from '../fetch-utils';
-import { withNestedQuery } from "../fetch-utils";
+import { withNestedQuery, getBlob } from "../fetch-utils";
 import type { paths } from '../schema';
 import {
   OpForPath,
@@ -54,10 +54,13 @@ export async function fetchTransactionsByCustomersCsv(
   fetcher: ApiFetcher,
   query: TransactionsByCustomersCsvQuery
 ): Promise<TransactionsByCustomersCsvResponse> {
-  const get = fetcher.path(TRANSACTIONS_CUSTOMERS_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/csv" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as TransactionsByCustomersCsvResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    TRANSACTIONS_CUSTOMERS_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/csv' },
+  ) as Promise<TransactionsByCustomersCsvResponse>;
 }
 
 // XLSX format (returns Blob)
@@ -68,10 +71,13 @@ export async function fetchTransactionsByCustomersXlsx(
   fetcher: ApiFetcher,
   query: TransactionsByCustomersXlsxQuery
 ): Promise<TransactionsByCustomersXlsxResponse> {
-  const get = fetcher.path(TRANSACTIONS_CUSTOMERS_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/xlsx" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as TransactionsByCustomersXlsxResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    TRANSACTIONS_CUSTOMERS_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/xlsx' },
+  ) as Promise<TransactionsByCustomersXlsxResponse>;
 }
 
 // PDF format (returns Blob)
@@ -82,8 +88,11 @@ export async function fetchTransactionsByCustomersPdf(
   fetcher: ApiFetcher,
   query: TransactionsByCustomersPdfQuery
 ): Promise<TransactionsByCustomersPdfResponse> {
-  const get = fetcher.path(TRANSACTIONS_CUSTOMERS_ROUTE).method('get').create();
-  const { payload, init } = withNestedQuery({ ...query, Accept: "application/pdf" } as Record<string, unknown>);
-  const response = await get(payload as Arg, init);
-  return response.data as unknown as TransactionsByCustomersPdfResponse;
+  const { payload, init } = withNestedQuery(query as Record<string, unknown>);
+  return getBlob(
+    fetcher,
+    TRANSACTIONS_CUSTOMERS_ROUTE,
+    payload as Record<string, string>,
+    { ...(init?.headers as Record<string, string> | undefined), accept: 'application/pdf' },
+  ) as Promise<TransactionsByCustomersPdfResponse>;
 }

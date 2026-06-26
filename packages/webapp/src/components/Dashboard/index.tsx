@@ -2,6 +2,7 @@
 export * from './SplashScreen';
 export * from './DashboardBoot';
 export * from './DashboardThemeProvider';
+export * from './BrandingThemeProvider';
 export * from './DashboardAbilityProvider';
 export * from './DashboardCard';
 export * from './DashboardActionsBar';

@@ -30,6 +30,15 @@ export class GetAttachmentPresignedUrl {
       .throwIfNotFound();
     const config = this.configService.get('s3');
 
+    // When a browser-reachable public base URL is configured (e.g. a published
+    // MinIO endpoint serving public-read objects), return a plain object URL.
+    // Presigned URLs are signed against the internal storage endpoint, whose
+    // host the browser cannot resolve; a public URL avoids that mismatch.
+    if (config?.publicUrl) {
+      const base = config.publicUrl.replace(/\/+$/, '');
+      return `${base}/${config.bucket}/${key}`;
+    }
+
     let ResponseContentDisposition = 'attachment';
     if (foundDocument && foundDocument.originName) {
       ResponseContentDisposition += `; filename="${foundDocument.originName}"`;

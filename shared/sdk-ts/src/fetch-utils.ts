@@ -195,7 +195,17 @@ export async function getBlob(
   headers?: Record<string, string>
 ): Promise<Blob> {
   const { baseUrl, init } = getFetcherConfig(fetcher);
-  const query = params ? `?${new URLSearchParams(params).toString()}` : '';
+  let query = '';
+  if (params) {
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null) {
+        search.append(key, String(value));
+      }
+    }
+    const serialized = search.toString();
+    query = serialized ? `?${serialized}` : '';
+  }
   const url = `${baseUrl}${path}${query}`;
 
   const response = await fetch(url, {

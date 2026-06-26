@@ -47,8 +47,6 @@ services:
     image: finqora-new-server:local
     expose:
       - '3000'
-    depends_on:
-      - redis
     restart: on-failure
     networks:
       - new_network
@@ -85,6 +83,19 @@ services:
       - EXCHANGE_RATE_SERVICE=${EXCHANGE_RATE_SERVICE}
       - BANK_FEED_ENABLED=${BANK_FEED_ENABLED}
       - HOSTED_ON_BIGCAPITAL_CLOUD=${HOSTED_ON_BIGCAPITAL_CLOUD}
+      # Object storage (attachments / company logo) backed by the bundled MinIO.
+      # S3_ENDPOINT is the in-network address used for uploads/reads; S3_PUBLIC_URL
+      # is the browser-reachable address used to display public-read objects.
+      - S3_REGION=${S3_REGION:-us-east-1}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-finqora}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-finqora123}
+      - S3_BUCKET=${S3_BUCKET:-finqora-attachments}
+      - S3_ENDPOINT=${S3_ENDPOINT:-http://minio:9000}
+      - S3_PUBLIC_URL=${S3_PUBLIC_URL:-http://localhost:9000}
+      - S3_FORCE_PATH_STYLE=true
+    depends_on:
+      - redis
+      - minio
 
   # One-shot: applies the Phase 1-3 migration delta to the SHARED database,
   # reusing the server image we just built. Exits when done.
@@ -136,9 +147,54 @@ services:
     networks:
       - new_network
 
+  # S3-compatible object storage for attachments / company logo.
+  minio:
+    container_name: finqora-new-minio
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${S3_ACCESS_KEY_ID:-finqora}
+      - MINIO_ROOT_PASSWORD=${S3_SECRET_ACCESS_KEY:-finqora123}
+    ports:
+      # Published so the browser can load public-read objects via S3_PUBLIC_URL.
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio:/data
+    restart: on-failure
+    networks:
+      - new_network
+
+  # One-shot: creates the bucket and makes it publicly readable so logo <img>
+  # URLs resolve without authentication. Exits when done.
+  minio_init:
+    container_name: finqora-new-minio-init
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    environment:
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-finqora}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-finqora123}
+      - S3_BUCKET=${S3_BUCKET:-finqora-attachments}
+    entrypoint:
+      - sh
+      - -c
+      - >
+        until mc alias set local http://minio:9000 "$${S3_ACCESS_KEY_ID}" "$${S3_SECRET_ACCESS_KEY}";
+        do echo 'waiting for minio...'; sleep 2; done;
+        mc mb -p "local/$${S3_BUCKET}" || true;
+        mc anonymous set download "local/$${S3_BUCKET}" || true;
+        echo 'MINIO BUCKET READY';
+    restart: 'no'
+    networks:
+      - new_network
+
 volumes:
   redis:
     name: finqora_new_redis
+    driver: local
+  minio:
+    name: finqora_new_minio
     driver: local
 
 networks:
