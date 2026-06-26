@@ -28,9 +28,12 @@ function AccountTransactionsAllProvider({
     fetchNextPage: fetchNextTransactionsPage,
     isFetchingNextPage: isCashflowTransactionsFetchingNextPage,
     hasNextPage: hasCashflowTransactionsNextPgae,
+    // The hook (and SDK) already add `accountId` to the request. Passing
+    // `account_id` here too produced a duplicated `account_id=..&account_id=..`
+    // query, which the server parsed as an array and rejected ("must be a
+    // number"), so no transactions loaded.
   } = useAccountTransactionsInfinity(accountId, {
     page_size: 50,
-    account_id: accountId,
   });
   // Memorized the cashflow account transactions.
   const cashflowTransactions = useFlattenInfinityPages(
