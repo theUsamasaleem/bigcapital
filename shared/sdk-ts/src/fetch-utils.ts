@@ -208,8 +208,17 @@ export async function getBlob(
   let query = '';
   if (params) {
     const search = new URLSearchParams();
+    // Mirror openapi-typescript-fetch's query serializer: skip null/undefined,
+    // and expand arrays into repeated params (an empty array contributes
+    // nothing). Doing `String(value)` on an array would emit `key=` (e.g.
+    // `branches_ids=`), which the server rejects with a 400.
     for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== null) {
+      if (value === undefined || value === null) continue;
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          if (item !== undefined && item !== null) search.append(key, String(item));
+        }
+      } else {
         search.append(key, String(value));
       }
     }
