@@ -83,6 +83,16 @@ export function createApiFetcher(config?: CreateApiFetcherConfig): ApiFetcher {
       ...(parsedConfig.disableCamelCaseTransform ? [] : [createCamelCaseMiddleware()]),
     ],
   });
+  // openapi-typescript-fetch keeps its configured baseUrl/init in a closure and
+  // does NOT expose them on the returned object. getBlob/postFormData/rawRequest
+  // build raw fetch() calls and need the resolved baseUrl + init (which carry the
+  // Authorization and organization-id headers), so attach the config explicitly
+  // for getFetcherConfig() to read. Without this those helpers send no auth
+  // header and the server responds 401.
+  (fetcher as unknown as FetcherWithConfig).config = {
+    baseUrl: parsedConfig.baseUrl ?? '',
+    init: parsedConfig?.init,
+  };
   return fetcher;
 }
 
