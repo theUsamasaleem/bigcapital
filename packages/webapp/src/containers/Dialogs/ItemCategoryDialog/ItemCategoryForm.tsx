@@ -67,7 +67,7 @@ function ItemCategoryFormInner({
       closeDialog(dialogName);
     };
     // Handle the response success.
-    const onSuccess = ({ response }) => {
+    const onSuccess = (response) => {
       AppToaster.show({
         message: intl.get(
           isNewMode
@@ -78,13 +78,12 @@ function ItemCategoryFormInner({
       });
       afterSubmit(response);
     };
-    // Handle the response error.
+    // Handle the response error. The error may come from the SDK client
+    // (errors under `error.data`) or an axios response (`error.response.data`),
+    // so read defensively and never assume a shape.
     const onError = (error) => {
-      const {
-        response: {
-          data: { errors },
-        },
-      } = error;
+      const errors =
+        error?.data?.errors ?? error?.response?.data?.errors ?? [];
 
       transformErrors(errors, { setErrors });
       setSubmitting(false);

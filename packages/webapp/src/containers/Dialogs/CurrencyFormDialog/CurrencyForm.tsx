@@ -59,7 +59,7 @@ function CurrencyFormInner({
       closeDialog(dialogName);
     };
     // Handle the request success.
-    const onSuccess = ({ response }) => {
+    const onSuccess = (response) => {
       AppToaster.show({
         message: intl.get(
           isEditMode
@@ -70,12 +70,12 @@ function CurrencyFormInner({
       });
       afterSubmit(response);
     };
-    // Handle the response error.
-    const onError = ({
-      response: {
-        data: { errors },
-      },
-    }) => {
+    // Handle the response error. Read errors defensively (SDK client puts them
+    // under `error.data`, axios under `error.response.data`) so this never
+    // throws on an unexpected error shape.
+    const onError = (error) => {
+      const errors =
+        error?.data?.errors ?? error?.response?.data?.errors ?? [];
       if (errors.find((e) => e.type === 'CURRENCY_CODE_EXISTS')) {
         AppToaster.show({
           message: 'The given currency code is already exists.',

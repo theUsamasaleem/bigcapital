@@ -47,7 +47,7 @@ function UserFormInner({
       closeDialog(dialogName);
     };
 
-    const onSuccess = ({ response }) => {
+    const onSuccess = (response) => {
       AppToaster.show({
         message: intl.get('teammate_invited_to_organization_account'),
         intent: Intent.SUCCESS,
@@ -55,13 +55,12 @@ function UserFormInner({
       afterSubmit(response);
     };
 
-    // Handle the response error.
+    // Handle the response error. Read errors defensively (SDK client puts them
+    // under `error.data`, axios under `error.response.data`) so this never
+    // throws on an unexpected error shape.
     const onError = (error) => {
-      const {
-        response: {
-          data: { errors },
-        },
-      } = error;
+      const errors =
+        error?.data?.errors ?? error?.response?.data?.errors ?? [];
       transformErrors(errors, { setErrors, setCalloutCode });
       setSubmitting(false);
     };
