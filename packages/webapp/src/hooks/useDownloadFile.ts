@@ -33,14 +33,16 @@ export const useDownloadFile = (args: IArgs) => {
   return { ...mutation };
 };
 
-export function downloadFile(
-  data,
-  filename,
-  mime = 'application/octet-stream',
-  bom?: any,
-) {
+export function downloadFile(data, filename, mime?: string, bom?: any) {
+  // Preserve the source Blob's own content-type when the caller doesn't pass an
+  // explicit MIME, so binary downloads (xlsx/pdf) keep a valid type instead of
+  // being forced to application/octet-stream. Falls back to octet-stream for
+  // non-Blob data (e.g. raw strings) — matching the previous default.
+  const resolvedMime =
+    mime ??
+    (data instanceof Blob && data.type ? data.type : 'application/octet-stream');
   var blobData = typeof bom !== 'undefined' ? [bom, data] : [data];
-  var blob = new Blob(blobData, { type: mime });
+  var blob = new Blob(blobData, { type: resolvedMime });
 
   if (typeof window.navigator.msSaveBlob !== 'undefined') {
     // IE workaround for "HTML7007: One or more blob URLs were
