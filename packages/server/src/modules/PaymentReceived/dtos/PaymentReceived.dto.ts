@@ -90,7 +90,6 @@ export class CommandPaymentReceivedDto {
   depositAccountId: number;
 
   @IsOptional()
-  @ToNumber()
   @IsString()
   @ApiProperty({
     description: 'The payment receive number of the payment received',

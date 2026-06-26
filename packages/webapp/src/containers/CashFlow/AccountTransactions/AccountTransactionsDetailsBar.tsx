@@ -25,7 +25,7 @@ function AccountSwitchButton() {
       minimal={true}
       rightIcon={<Icon icon={'caret-down-16'} iconSize={16} />}
     >
-      <AccountSwitchText>{currentAccount.name}</AccountSwitchText>
+      <AccountSwitchText>{currentAccount?.name}</AccountSwitchText>
     </AccountSwitchButtonBase>
   );
 }
@@ -39,7 +39,7 @@ function AccountSwitchItem() {
     push(`/cashflow-accounts/${account.id}/transactions`);
   });
 
-  const items = cashflowAccounts.map((account) => (
+  const items = (cashflowAccounts ?? []).map((account) => (
     <AccountSwitchMenuItem
       name={account.name}
       balance={account.formatted_amount}
@@ -66,7 +66,7 @@ function AccountBalanceItem() {
     <AccountBalanceItemWrap>
       {intl.get('cash_flow_transaction.balance_in_bigcapital')} {''}
       <AccountBalanceAmount>
-        {currentAccount.formatted_amount}
+        {currentAccount?.formatted_amount}
       </AccountBalanceAmount>
     </AccountBalanceItemWrap>
   );
@@ -79,7 +79,7 @@ function AccountBankBalanceItem() {
     <AccountBalanceItemWrap>
       Balance in Bank Account
       <AccountBalanceAmount>
-        {currentAccount.bank_balance_formatted}
+        {currentAccount?.bank_balance_formatted}
       </AccountBalanceAmount>
     </AccountBalanceItemWrap>
   );
@@ -88,7 +88,7 @@ function AccountBankBalanceItem() {
 function AccountNumberItem() {
   const { currentAccount } = useAccountTransactionsContext();
 
-  if (!currentAccount.account_mask) return null;
+  if (!currentAccount?.account_mask) return null;
 
   return (
     <AccountBalanceItemWrap>

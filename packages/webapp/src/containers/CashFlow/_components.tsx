@@ -4,7 +4,12 @@ import { useFormikContext } from 'formik';
 import { InputGroup, Position, ControlGroup } from '@blueprintjs/core';
 import * as R from 'ramda';
 
-import { FFormGroup, Icon, InputPrependButton } from '@/components';
+import {
+  FormattedMessage as T,
+  FFormGroup,
+  Icon,
+  InputPrependButton,
+} from '@/components';
 import { useUpdateEffect } from '@/hooks';
 
 import { withSettings } from '@/containers/Settings/withSettings';

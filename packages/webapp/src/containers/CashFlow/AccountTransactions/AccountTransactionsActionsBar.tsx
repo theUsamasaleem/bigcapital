@@ -84,9 +84,11 @@ function AccountTransactionsActionsBarInner({
   const addMoneyInOptions = useMemo(() => getAddMoneyInOptions(), []);
   const addMoneyOutOptions = useMemo(() => getAddMoneyOutOptions(), []);
 
-  const isFeedsActive = !!currentAccount.is_feeds_active;
-  const isFeedsPaused = currentAccount.is_feeds_paused;
-  const isSyncingOwner = currentAccount.is_syncing_owner;
+  // `currentAccount` is undefined while the account query is loading, so guard
+  // every access to avoid crashing the whole page during the initial render.
+  const isFeedsActive = !!currentAccount?.is_feeds_active;
+  const isFeedsPaused = currentAccount?.is_feeds_paused;
+  const isSyncingOwner = currentAccount?.is_syncing_owner;
 
   // Handle table row size change.
   const handleTableRowSizeChange = (size) => {
