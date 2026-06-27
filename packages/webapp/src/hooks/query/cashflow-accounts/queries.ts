@@ -27,7 +27,13 @@ import {
   uncategorizeTransaction,
 } from '@bigcapital/sdk-ts';
 import { useApiFetcher } from '../../useRequest';
-import { cashflowAccountsKeys } from './query-keys';
+import {
+  cashflowAccountsKeys,
+  CASH_FLOW_TRANSACTIONS,
+  CASHFLOW_ACCOUNT_TRANSACTIONS_INFINITY,
+  CASHFLOW_ACCOUNT_UNCATEGORIZED_TRANSACTIONS_INFINITY,
+} from './query-keys';
+import { BANK_ACCOUNT_SUMMARY_META } from '../banking/query-keys';
 import { accountsKeys } from '../accounts/query-keys';
 import { customersKeys } from '../customers/query-keys';
 import { vendorsKeys } from '../vendors/query-keys';
@@ -39,16 +45,22 @@ const commonInvalidateQueries = (
   // Invalidate cashflow accounts.
   queryClient.invalidateQueries({ queryKey: cashflowAccountsKeys.all() });
 
-  // Invalidate cashflow transactions.
+  // Invalidate cashflow transactions. Use the bare key prefixes: calling the
+  // factories with no args yields trailing `undefined` (e.g. [KEY, undefined,
+  // undefined]), which React Query's partial match does NOT consider a prefix
+  // of an active key like [KEY, 1000, {…}] — so the list never refetched and
+  // appeared to "update after ~20s" (only on the next window focus). Matching by
+  // the bare prefix invalidates every account/query variant and refetches now.
+  queryClient.invalidateQueries({ queryKey: [CASH_FLOW_TRANSACTIONS] });
   queryClient.invalidateQueries({
-    queryKey: cashflowAccountsKeys.transactions(),
+    queryKey: [CASHFLOW_ACCOUNT_TRANSACTIONS_INFINITY],
   });
   queryClient.invalidateQueries({
-    queryKey: cashflowAccountsKeys.transactionsInfinity(),
+    queryKey: [CASHFLOW_ACCOUNT_UNCATEGORIZED_TRANSACTIONS_INFINITY],
   });
-  queryClient.invalidateQueries({
-    queryKey: cashflowAccountsKeys.uncategorizedInfinity(),
-  });
+
+  // Invalidate the per-account balance summary shown on the transactions page.
+  queryClient.invalidateQueries({ queryKey: [BANK_ACCOUNT_SUMMARY_META] });
 
   // Invalidate accounts.
   queryClient.invalidateQueries({ queryKey: accountsKeys.all() });
